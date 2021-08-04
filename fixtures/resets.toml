@@ -1,0 +1,75 @@
+[[scenario]]
+    name = "resetToken-expired"
+
+    [[scenario.table]]
+        name = "resets"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "resetToken-expired@example.com"
+            login = "resetToken-expired"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            expiry_date = "<%= nowSub(25200) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+[[scenario]]
+    name = "resetToken-valid"
+
+    [[scenario.table]]
+        name = "resets"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "resetToken-valid@example.com"
+            login = "resetToken-valid"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            expiry_date = "<%= nowAdd(25200) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+[[scenario]]
+    name = "resetToken-valid-admin-user-present-in-IPA"
+
+    [[scenario.table]]
+        name = "resets"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "admin-user-present-in-IPA@example.com"
+            login = "admin-user-present-in-IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            expiry_date = "<%= nowAdd(25200) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+
+[[scenario]]
+    name = "resetToken-valid-user-present-in-IPA"
+
+    [[scenario.table]]
+        name = "resets"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "user-present-in-IPA@example.com"
+            login = "user-present-in-IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            expiry_date = "<%= nowAdd(25200) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+[[scenario]]
+    name = "resetToken-expired-user-present-in-IPA"
+
+    [[scenario.table]]
+        name = "resets"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "user-present-in-IPA@example.com"
+            login = "user-present-in-IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            expiry_date = "<%= nowSub(25200) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"

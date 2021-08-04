@@ -1,0 +1,8 @@
+# Database settings and credentials
+---
+production:
+  dialect: postgres
+  database: auri
+  user: auri
+  password: auri
+  host: 127.0.0.1

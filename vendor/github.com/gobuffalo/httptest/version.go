@@ -1,0 +1,3 @@
+package httptest
+
+const Version = ""

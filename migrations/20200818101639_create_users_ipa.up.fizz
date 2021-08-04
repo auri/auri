@@ -1,0 +1,9 @@
+create_table("ipa_users") {
+	t.Column("id", "uuid", {primary: true})
+	t.Timestamps()
+	t.Column("uid", "text", {"unique": true})
+	t.Column("reminded_at", "TIMESTAMP")
+	t.Column("token", "text")
+	t.Column("notified_at", "TIMESTAMP", {"null": true})
+	t.Column("notifications_sent", "integer", {"default": 0})
+}

@@ -1,0 +1,19 @@
+.form-approve {
+    display: inline-block !important;
+}
+.btn-approve {
+    color: green;
+    background-color: inherit;
+    border: 1px solid grey;
+    border-radius: 5px;
+    width: 32px;
+    height: 24px;
+}
+.btn-disapprove {
+    color: red;
+    background-color: inherit;
+    border: 1px solid grey;
+    border-radius: 5px;
+    width: 32px;
+    height: 24px;
+}

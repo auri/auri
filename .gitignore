@@ -1,0 +1,9 @@
+/.idea/
+/bin/
+/tmp/
+/node_modules/
+/public/
+/.vscode/
+/.env
+.DS_Store
+/.vagrant/

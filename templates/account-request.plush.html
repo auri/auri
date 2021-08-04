@@ -1,0 +1,48 @@
+
+<div id="tbs-container" style="margin-bottom: 200px; margin-top: 40px;">
+  <div id="tbs-headline">
+    <h2 class="offset-top-0 offset-bottom-3 text-center">Account request</h2>
+  </div>
+  <%= partial("flash.html") %>
+  <div class="row">
+    <div class="col-md-12">
+      <%= if (errors) { %>
+        <%= for (key, val) in errors { %>
+          <div class="alert alert-danger alert-dismissible fade show m-1" role="alert">
+            <%= val %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+  <%= form({action: accountrequestPath(), method: "POST"}) { %>
+    <div class="offset-bottom-4">
+      <div class="row">
+        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+          <%= f.InputTag({value: name, name: "name", placeholder: "First name"}) %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+          <%= f.InputTag({value: lastname, name: "lastname", placeholder: "Last name"}) %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+          <%= f.InputTag({value: mail, name: "mail", placeholder: "E-Mail address"}) %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-input-set offset-bottom-2 col-md-11 padding-right-zero">
+          <%= f.TextArea({value: comment, name: "comment", placeholder: "Optional comment (e.g. reason for account request)"}) %>
+        </div>
+      </div>
+      <div class="tbs-container">
+        <button name="register" type="submit" class="btn btn-brand btn-large btn-block">Proceed</button>
+      </div>
+    </div>
+  <% } %>
+</div>

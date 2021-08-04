@@ -1,0 +1,454 @@
+html {
+    position: relative;
+    min-height: 100%;;
+}
+body {
+  margin:0;
+  background: #FAFAFF;
+ }
+ a {
+  background:transparent;
+ }
+ a:active,
+ a:hover {
+  outline:0;
+ }
+ input {
+  line-height:normal;
+  width: 100%;
+ }
+ input[type="checkbox"],
+ input[type="radio"] {
+  box-sizing:border-box;
+  padding:0
+ }
+ input[type="number"]::-webkit-inner-spin-button,
+ input[type="number"]::-webkit-outer-spin-button {
+  height:auto
+ }
+ input[type="search"] {
+  -webkit-appearance:textfield;
+  -moz-box-sizing:content-box;
+  -webkit-box-sizing:content-box;
+  box-sizing:content-box
+ }
+ input[type="search"]::-webkit-search-cancel-button,
+ input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance:none
+ }
+ table {
+  border-collapse:collapse;
+  border-spacing:0
+ }
+ td,
+ th {
+  padding:0
+ }
+
+.auri-head {
+    margin-left: 50px;
+}
+.container-fixed{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1048px;
+    display: block;
+    width: 100%;
+    clear: both;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+header {
+    background-color: #ffffff;
+}
+a:hover {
+ color: ghostwhite;
+ text-decoration: none;
+}
+h1.marketing-l {
+    font-size: 36px;
+}
+
+#tbs-headline {
+    margin-bottom: 24px;
+}
+
+#tbs-headline h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#tbs-headline h5 {
+    margin: 0;
+    padding: 0;
+    top: 6px;
+}
+#tbs-container {
+    margin: 0 auto;
+    max-width: 1024px;
+}
+
+.offset-bottom-1 {
+    margin-bottom: 12px;
+}
+.offset-bottom-2 {
+    margin-bottom: 12px;
+}
+.offset-bottom-3 {
+    margin-bottom: 12px;
+}
+/* ------------------------------------------------------------------------ */
+/* Header																	*/
+/* ------------------------------------------------------------------------ */
+
+.brand-bar{
+    height: 61px;
+    background-color: #273469;
+}
+
+.brand-bar .brand_bar__slogan {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+    float: right;
+    line-height: 24px;
+    margin-top: 15px;
+    margin-right: 12px;
+}
+
+.brand_bar__logo{
+    height: 50px;
+    margin-top: 5px;
+}
+/* ------------------------------------------------------------------------ */
+/* Switch																	*/
+/* ------------------------------------------------------------------------ */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 4%;
+    height: 3%;
+  }
+
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #dddddd;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 100%;
+    width: 26px;
+    left: 0px;
+    bottom: 0px;
+    background-color:#757575;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  input:checked + .slider {
+    background-color:#273469;;
+  }
+
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+/* ------------------------------------------------------------------------ */
+/* Footer																	*/
+/* ------------------------------------------------------------------------ */
+
+.footer-bar{
+    // background-color: #262626;
+    background-color: #30343F;
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    height: 128px;
+  }
+
+  .footer-bar-brand-bar{
+    padding-top: 3px;
+    padding-bottom: 19px;
+  }
+
+  .footer-bar-logo{
+    height:36px;
+  }
+
+  .footer-bar-slogan-holder{
+    text-align:right;
+    padding-top: 16px;
+
+  }
+
+  .footer-bar-slogan{
+    color: white;
+    font-weight:600;
+    font-size:18px;
+    height: 34px;
+  }
+
+  .brand-footer-separator{
+    border-bottom: 1px solid #918984;
+  }
+
+  .footer-bar-item-holder{
+    padding-top:10px;
+  }
+
+  .footer-bar-item{
+    color: #918984;
+  }
+
+  .mar-l-20{
+    margin-left:20px;
+  }
+
+  .footer-locale-changer{
+    display: inline-block;
+  }
+
+  .footer-locale-changer > select{
+    background-color: #262626;
+    border: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-overflow: '';
+    vertical-align: middle;
+    text-transform: uppercase;
+    text-align: center;
+    color: #797672;
+    margin-top: -5px;
+  }
+
+  .footer-page-link, .footer-page-link:visited, .footer-page-link:hover, .footer-page-link:active, .footer-page-link:focus {
+    color: #918984;
+    outline: 0 none !important;
+    border: 0;
+    text-decoration: none;
+  }
+
+#tbs-header {
+    height: 84px;
+    margin-bottom: 12px;
+}
+
+#tbs-header-content {
+    background-color: #007BFF;
+    color: #fff;
+    height: inherit;
+    left:0;
+    line-height: 84px;
+    overflow: hidden;
+    padding: 0 24px;
+    position:fixed;
+    top:0;
+    transition: height linear 0.25s;
+    -webkit-transition: height linear 0.25s;
+    -moz-transition: height linear 0.25s;
+    width: 100%;
+    z-index: 1;
+}
+
+body.scrolled #tbs-header-content {
+    height: 4px;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* Login-Box																*/
+/* ------------------------------------------------------------------------ */
+
+#tbs-container {
+    margin: 0 auto;
+    max-width: 600px;
+    padding: 48px 12px 0;
+}
+
+#tbs-headline {
+    margin-bottom: 24px;
+}
+
+#tbs-headline h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#tbs-headline h5 {
+    margin: 0;
+    padding: 0;
+    top: 6px;
+}
+
+#tbs-reauth {
+    height: 36px;
+    margin-bottom: 12px;
+}
+
+#tbs-reauth-label {
+    font-size: 15px;
+    line-height: 36px;
+    padding-left: 12px;
+    float: left;
+}
+
+#tbs-reauth-username {
+    padding-left: 33%;
+    line-height: 32px;
+}
+
+#tbs-infobox {
+    background-color: #f2f2f2;
+    padding: 12px 12px;
+    line-height: 1em;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* PDE Toolbox  															*/
+/* ------------------------------------------------------------------------ */
+
+ol {
+    margin: 0;
+    padding: 0 0 0 24px;
+}
+
+p, p[class] {
+    padding: 0;
+}
+
+.icon-information {
+    cursor: pointer;
+}
+
+.form-input-set {
+    position: relative;
+}
+
+.form-input-set .icon-information {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+}
+
+.form-input-set label {
+    bottom: 1px;
+    cursor: text;
+    left: 12px;
+    line-height: 35px;
+    position: absolute;
+}
+
+.modal.fade.in {
+    z-index: 2;
+}
+
+.btn-large {
+    padding-left: 48px;
+    padding-right: 48px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Responsive																*/
+/* ------------------------------------------------------------------------ */
+
+@media screen and (max-width: 639px) {
+    #tbs-nav + #tbs-container {
+        padding: 12px 12px 0;
+    }
+
+    #tbs-reauth {
+        height: 48px;
+        margin-bottom: 12px;
+        padding-left: 12px;
+    }
+
+    #tbs-reauth-label {
+        float: none;
+        font-size: 12px;
+        line-height: 1em;
+        padding-left: 0;
+    }
+
+    #tbs-reauth-username {
+        line-height: 36px;
+        padding-left: 0;
+    }
+
+    #tbs-footer {
+        padding: 0 24px 36px;
+    }
+
+    #tbs-footer .pull-right, #tbs-footer .pull-left {
+        float: none;
+    }
+
+    #tbs-footer .pull-left {
+        margin-top: 12px;
+    }
+
+    h1.marketing-l {
+        font-size: 36px;
+    }
+
+    .form-input {
+        height: 60px;
+        padding-left: 12px;
+        padding-top: 24px;
+    }
+
+    .form-input-set .icon-information {
+        bottom: 20px;
+    }
+
+    .form-input-set label {
+        line-height: 58px;
+        transition: all linear 0.10s;
+    }
+
+    .form-input-set.floating label {
+        bottom: 36px;
+        line-height: 1em;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* workaround when the input field is auto filled in Chrome */
+    .form-input-set .form-input:-webkit-autofill + label {
+        bottom: 36px;
+        line-height: 1em;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}

@@ -1,0 +1,16 @@
+[[scenario]]
+name = "handle requests"
+
+  [[scenario.table]]
+    name = "requests"
+
+    [[scenario.table.row]]
+      id = "f19d5ab3-e913-4c08-b4dd-627e26ccbb0c"
+      email = "domain@example.com"
+      name = "test"
+      last_name = "test"
+      email_verification = false
+      token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+      expiry_date = "<%= now() %>"
+      created_at = "<%= now() %>"
+      updated_at = "<%= now() %>"

@@ -1,0 +1,107 @@
+<%= partial("flash.html") %>
+
+<div id="tbs-container">
+    <div id="tbs-headline">
+        <h2 class="text-center marketing-l text-thin tbs-text-1em">Validated requests</h2>
+    </div>
+</div>
+<div id="list_requests" class="col-md-12" style="padding-bottom: 70px;">
+    <table class="table table-striped">
+        <thead>
+            <th>email</th>
+            <th>name</th>
+            <th>requested at</th>
+            <th>action</th>
+        </thead>
+        <tbody>
+            <%= for (request) in requests { %>
+                    <%= if (request.MailVerification) { %>
+                        <tr>
+                            <td><%= request.Email %></td>
+                            <td><%= request.Name %> <%= request.LastName %></td>
+                            <td><%= request.CreatedAt.Format("02.01.2006 15:04:05") %></td>
+                            <td>
+                                <%= form_for(request, {action: adminRequestIDPath({ request_id: request.ID }), method: "PUT", class: "form-approve"}) { %>
+                                    <button class="glyphicon glyphicon-ok btn-approve" role="submit"></button>
+                                <% } %>
+                                <%= form_for(request, {action: adminRequestIDPath({ request_id: request.ID }), method: "DELETE", class: "form-approve"}) { %>
+                                    <button class="glyphicon glyphicon-remove btn-disapprove" role="submit"></button>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <%= if (request.CommentField.String != "") { %>
+                            <tr></tr>
+                            <tr>
+                                <td colspan="5"><b>comment: </b><%= request.CommentField %></td>
+                            </tr>
+                        <% } %>
+                    <% } %>
+            <% } %>
+        </tbody>
+    </table>
+
+    <label class="switch col-md-12">
+        <input type="checkbox"  onclick="showNotValidatedRequests()">
+        <span class="slider round"></span>
+    </label>
+    <label>
+        <div>
+            <span style="padding-left: 5px;">Display the non-validated requests</span>
+        </div>
+    </label>
+</div>
+
+<div style="display: none;" id="non_validated_requests">
+    <div id="tbs-headline">
+        <h2 class="text-center marketing-l text-thin tbs-text-1em">Non-validated requests</h2>
+    </div>
+    <div id="list_requests" class="col-md-12" style="padding-bottom: 200px;">
+        <table class="table table-striped">
+            <thead>
+                <th>email</th>
+                <th>name</th>
+                <th>requested at</th>
+                <th>expires at</th>
+                <th>action</th>
+            </thead>
+            <tbody>
+                    <%= for (request) in requests { %>
+                            <%= if (!request.MailVerification) { %>
+                                <tr>
+                                    <td><%= request.Email %></td>
+                                    <td><%= request.Name %> <%= request.LastName %></td>
+                                    <td><%= request.CreatedAt.Format("02.01.2006 15:04:05") %></td>
+                                    <td><%= request.ExpiryDate.Format("02.01.2006 15:04:05") %></td>
+
+                                    <td>
+                                        <%= form_for(request, {action: adminRequestIDPath({ request_id: request.ID }), method: "PUT", class: "form-approve"}) { %>
+                                            <button class="glyphicon glyphicon-ok btn-approve" role="submit"></button>
+                                        <% } %>
+                                        <%= form_for(request, {action: adminRequestIDPath({ request_id: request.ID }), method: "DELETE", class: "form-approve"}) { %>
+                                        <button class="glyphicon glyphicon-remove btn-disapprove" role="submit"></button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <%= if (request.CommentField.String != "") { %>
+                                <tr></tr>
+                                <tr>
+                                    <td colspan="5"><b>comment: </b><%= request.CommentField %></td>
+                                </tr>
+                                <% } %>
+                            <% } %>
+                    <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function showNotValidatedRequests() {
+        var x = document.getElementById("non_validated_requests");
+
+        if (x.style.display == "block") {
+            x.style.display = "none";
+        }else {
+            x.style.display = "block";
+        }
+    }
+</script>

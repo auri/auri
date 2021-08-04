@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Auri</title>
+    <%= stylesheetTag("application.css") %>
+    <meta name="csrf-param" content="authenticity_token" />
+    <meta name="csrf-token" content="<%= authenticity_token %>" />
+    <link rel="icon" href="<%= assetPath("images/favicon.ico") %>">
+    <style>
+      .brand-bar {
+        background-color: #273469;
+      }
+      .btn-brand {
+        background-color: #273469;
+      }
+      .form-control:focus {
+        border: 2px solid #273469;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand-bar">
+        <div class="container-fixed">
+          <div class="row">
+            <div class="col-sm text-left">
+              <img class="brand_bar__logo" src="<%= assetPath("images/logo-auri-white.png") %>">
+            </div>
+            <div class="col-sm" style="text-align: right;">
+              <span class="brand_bar__slogan">Automated User Registration IPA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="container">
+      <%= yield %>
+    </div>
+
+    <%= javascriptTag("application.js") %>
+    
+    <footer class="footer-bar">
+      <div class="container-fixed footer-bar-brand-bar">
+          <div class="row">
+              <div class="col-sm text-left">
+                <!-- ToDo: Auri-Logo -->
+                <img class="brand_bar__logo" src="<%= assetPath("images/logo-auri-white.png") %>">
+              </div>
+              <div class="col-sm footer-bar-slogan-holder">
+                  <span class="footer-bar-slogan">Automated User Registration IPA</span>
+              </div>
+          </div>
+      </div>
+      <div class="row container-fixed">
+          <div class="col-l-12">
+              <div class="brand-footer-separator"></div>
+          </div>
+      </div>
+    </footer>
+  </body>
+</html>

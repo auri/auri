@@ -1,0 +1,14 @@
+create_table("users") {
+	t.Column("id", "uuid", {primary: true})
+	t.Timestamps()
+	t.Column("email", "text")
+	t.Column("name", "text")
+	t.Column("last_name", "text")
+	t.Column("public_key", "text")
+	t.Column("email_verification", "bool", {"default":false})
+	t.Column("expiry_date", "TIMESTAMP")
+	t.Column("token", "text")
+	t.Column("comment_field", "text", {"null": true})
+}
+
+drop_column("users", "public_key")

@@ -1,0 +1,129 @@
+.offset-bottom-1 {
+    margin-bottom: 12px;
+}
+.offset-bottom-2 {
+    margin-bottom: 24px;
+}
+.offset-bottom-3 {
+    margin-bottom: 36px;
+}
+.offset-top-0 {
+    margin-top: 0;
+}
+.padding-right-zero {
+    padding-right: 0;
+}
+.icon-information {
+    border: none;
+    border-left: 0;
+    top: 8px;
+}
+.btn {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid
+    transparent;
+        border-top-color: transparent;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        border-left-color: transparent;
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 1.2;
+    padding: 6px 23px 7px;
+    font-weight: 400;
+    white-space: nowrap;
+    background-image: none;
+    text-decoration: none;
+    transition: all 150ms cubic-bezier(.445,.05,.55,.95);
+        transition-duration: 150ms;
+}
+.btn-brand {
+    color: #fff;
+    border-color: #ced4da;
+}
+.btn-brand:hover {
+    color: #fff;
+    border-color: rgba(0,0,0,.87);
+    text-decoration: underline;
+}
+
+.btn-large {
+    font-size: 21px;
+    padding: 10px 23px 11px;
+}
+.btn-block {
+    width: 100%;
+}
+#tbs-headline h1 {
+    color:
+    #6c6c6c;
+    font-size: 48px;
+    font-weight: 200;
+    padding: 0;
+}
+#tbs-headline #tbs-brand {
+    line-height: 1.5em;
+    padding-bottom: 36px;
+}
+.tbs-relative {
+    position: relative;
+}
+.text-center {
+    text-align: center;
+}
+#tbs-headline h4 {
+    font-weight: bold;
+    line-height: 25px;
+    margin: 0;
+    padding-bottom: 0;
+    text-transform: uppercase;
+}
+.h4, h4 {
+    font-size: 21px;
+    margin-top: 17px;
+    padding-bottom: 8px;
+}
+.form-input {
+    height: 60px;
+    padding-left: 12px;
+    padding-top: 24px;
+}
+.form-input-ssh {
+    width:100%;
+    min-height: 240px;
+}
+.form-input-set .icon-information {
+    position: inherit;
+    right: 0;
+    padding-top: 7px;
+    margin-bottom: 16px;
+}
+.form-control:focus {
+    color: rgba(0,0,0,.87);
+    background-color: #fff;
+    border: none;
+    outline: 0;
+    box-shadow: 0 0 0 rgb(0,0,0);
+}
+.form-control:hover {
+    border-color: rgba(0,0,0,.87);
+}
+.form-control {
+    position: inherit;
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color 0.15s ease-in-out,box-shadow 0.15s ease-in-out;
+}

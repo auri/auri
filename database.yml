@@ -1,0 +1,24 @@
+---
+development:
+  dialect: postgres
+  database: {{envOr "DB_NAME" "auri_development"}}
+  user: {{envOr "DB_USER" "postgres"}}
+  password: {{envOr "DB_PASSWORD" "postgres123"}}
+  host: {{envOr "DB_HOST" "127.0.0.1"}}
+  pool: 5
+
+test:
+  dialect: postgres
+  database: {{envOr "DB_NAME" "auri_test"}}
+  user: {{envOr "DB_USER" "postgres"}}
+  password: {{envOr "DB_PASSWORD" "postgres123"}}
+  host: {{envOr "DB_HOST" "127.0.0.1"}}
+  pool: 5
+
+production:
+  dialect: postgres
+  database: {{envOr "DB_NAME" "auri_production"}}
+  user: {{envOr "DB_USER" "postgres"}}
+  password: {{envOr "DB_PASSWORD" "postgres123"}}
+  host: {{envOr "DB_HOST" "127.0.0.1"}}
+  pool: 5  

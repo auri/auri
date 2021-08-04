@@ -1,0 +1,3 @@
+add_column("resets", "login", "string", {default: ""})
+"// https://github.com/gobuffalo/fizz/issues/75"
+sql("ALTER TABLE resets ALTER COLUMN login DROP DEFAULT;")

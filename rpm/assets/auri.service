@@ -1,0 +1,11 @@
+[Unit]
+Description=auri
+
+[Service]
+ExecStart=/usr/bin/auri
+User=root
+Group=root
+UMask=007
+
+[Install]
+WantedBy=multi-user.target

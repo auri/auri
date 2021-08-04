@@ -1,0 +1,7 @@
+create_table("resets") {
+	t.Column("id", "uuid", {primary: true})
+	t.Timestamps()
+    t.Column("expiry_date", "TIMESTAMP")
+	t.Column("email", "text")
+	t.Column("token", "text")
+}

@@ -1,0 +1,50 @@
+[[scenario]]
+    name = "request-unverified-validToken-not-in-ipa"
+
+    [[scenario.table]]
+        name = "requests"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "unverified-validToken-not-in-ipa@example.com"
+            name = "Unverified new user with valid token"
+            last_name = "doesn't exist in IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            email_verification = false
+            expiry_date = "<%= nowAdd(86400) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+[[scenario]]
+    name = "request-unverified-expiredToken-not-in-ipa"
+
+    [[scenario.table]]
+        name = "requests"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "unverified-expiredToken-not-in-ipa@example.com"
+            name = "Unverified new user with expired token"
+            last_name = "doesn't exist in IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            email_verification = false
+            expiry_date = "<%= nowSub(86400) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+
+[[scenario]]
+    name = "request-verified-expiredToken-not-in-ipa"
+
+    [[scenario.table]]
+        name = "requests"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            email = "verified-expiredToken-not-in-ipa@example.com"
+            name = "Verified new user with expired token"
+            last_name = "doesn't exist in IPA"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            email_verification = true
+            expiry_date = "<%= nowSub(86400) %>"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"

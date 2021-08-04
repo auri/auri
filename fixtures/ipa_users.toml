@@ -1,0 +1,102 @@
+[[scenario]]
+    name = "ipa_user_reminded_now_without_notifications"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "<%= now() %>"
+            token = ""
+            notifications_sent = "0"
+
+[[scenario]]
+    name = "ipa_user_reminded_1y_ago_without_notifications"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "<%= nowSub(32850000) %>"
+            token = ""
+            notifications_sent = "0"
+
+[[scenario]]
+    name = "ipa_user_reminded_1y_ago_without_notifications"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "<%= nowSub(32850000) %>"
+            token = ""
+            notifications_sent = "0"
+
+# OLD fixtures, need to be checked
+
+[[scenario]]
+    name = "extend_user_account"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "2020-01-01 00:00:00"
+            notified_at = "<%= now() %>"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            notifications_sent = "1"
+
+[[scenario]]
+    name = "send_email_no_reaction"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "2020-01-01 00:00:00"
+            token = "37e16abd-b69e-4b65-a3cd-a9c7b250f7a0"
+            notifications_sent = "1"
+
+[[scenario]]
+    name = "send_email_mixed_users"
+
+    [[scenario.table]]
+        name = "ipa_users"
+
+        [[scenario.table.row]]
+            id = "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            reminded_at = "2020-01-01 00:00:00"
+            token = ""
+            notifications_sent = "0"
+
+        [[scenario.table.row]]
+            id = "177c2e3c-8d19-40cb-bf1c-aabf45653aa0"
+            created_at = "<%= now() %>"
+            updated_at = "<%= now() %>"
+            uid = "user-present-in-IPA"
+            notified_at = "<%= nowSub(259200) %>"
+            reminded_at = "2020-01-01 00:00:00"
+            token = "ab36f221-9d58-4676-9718-8233cde6cd41"
+            notifications_sent = "1"
