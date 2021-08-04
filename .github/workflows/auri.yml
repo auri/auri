@@ -189,7 +189,7 @@ jobs:
           cat > ~/.config/copr <<EOF
           [copr-cli]
           login = ${{ secrets.COPR_LOGIN }}
-          username = ${{ secrets.COPR_USERNAME }}
+          username = auri
           token = ${{ secrets.COPR_TOKEN }}
           copr_url = https://copr.fedorainfracloud.org
           EOF
