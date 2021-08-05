@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.0.1](https://github.com/auri/auri/tree/v0.0.1) (2021-08-05)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.0...v0.0.1)
+
+**Merged pull requests:**
+
+- Switching to the master branch from main [\#5](https://github.com/auri/auri/pull/5) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Docs: badges and installation steps [\#4](https://github.com/auri/auri/pull/4) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- CI: support release builds [\#3](https://github.com/auri/auri/pull/3) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- CI fix: don't hide the copr username [\#2](https://github.com/auri/auri/pull/2) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- CI: enable GH actions [\#1](https://github.com/auri/auri/pull/1) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.0](https://github.com/auri/auri/tree/v0.0.0) (2021-08-04)
 
 [Full Changelog](https://github.com/auri/auri/compare/6ecc600fbfd956d9aa554dfac755b08e678c8a15...v0.0.0)
