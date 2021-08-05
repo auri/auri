@@ -1,0 +1,111 @@
+name: Create a new release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 1.2.3)'
+        required: true
+      version_confirm:
+        description: 'Version confirmation (just repeat the version)'
+        required: true
+
+jobs:
+  version-info:
+    runs-on: ubuntu-latest
+    outputs:
+      last_tag: ${{ steps.last_tag.outputs.tag }}
+      new_tag: ${{ steps.new_tag.outputs.tag }}
+    steps:
+      - name: check the new tag data
+        run: |
+          if [ "${{ github.event.inputs.version }}" != "${{ github.event.inputs.version_confirm }}" ]; then
+            echo "Version and it's confirmation don't match (${{ github.event.inputs.version }} vs ${{ github.event.inputs.version_confirm }})";
+            exit 1;
+          fi
+          if [[ ! "${{ github.event.inputs.version }}" =~ ^[0-9]*\.[0-9]*\.[0-9]*$ ]]; then
+            echo "Given version ${{ github.event.inputs.version }} doesn't match the versioning scheme 1.2.3";
+            exit 1;
+          fi
+      - name: get the new tag
+        id: new_tag
+        run: echo "::set-output name=tag::v${{ github.event.inputs.version }}"
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: get last tag information
+        id: last_tag
+        run: echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1 ))"
+
+  generate-changelog:
+    runs-on: ubuntu-latest
+    needs: version-info
+    outputs:
+      release_changelog: ${{ steps.release_changelog.outputs.content }}
+    permissions:
+      issues: read
+      pull-requests: read
+      contents: read
+    steps:
+      - name: Generate full changelog for repository
+        uses: charmixer/auto-changelog-action@v1
+        with:
+          future_release: ${{ needs.version-info.outputs.new_tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: CHANGELOG.md
+          path: CHANGELOG.md
+      - name: Generate changelog with release information only
+        uses: charmixer/auto-changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          since_tag: ${{ needs.version-info.outputs.last_tag }}
+          future_release: ${{ needs.version-info.outputs.new_tag }}
+          output: 'CHANGELOGRELEASE.md'
+      - name: Read the release changelog
+        id: release_changelog
+        run: |
+          OUTPUT="$(cat CHANGELOGRELEASE.md)"
+          # https://github.community/t/set-output-truncates-multiline-strings/16852/5
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=content::$OUTPUT"
+
+  commit-changelog:
+    runs-on: ubuntu-latest
+    needs:
+      - generate-changelog
+      - version-info
+    permissions:
+      contents: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AURI_BOT_PAT }}
+      - uses: actions/download-artifact@v2
+        with:
+          name: CHANGELOG.md
+      - name: Commit changelog and push it
+        id: commit-and-push
+        env:
+          GITHUB_TOKEN: ${{ secrets.AURI_BOT_PAT }}
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com
+          git add CHANGELOG.md
+          git commit -m 'Changelog update ${{ needs.version-info.outputs.new_tag }}'
+          echo "::set-output name=commit::$(git rev-parse HEAD)"
+          git pull --rebase
+          git push
+          git tag ${{ needs.version-info.outputs.new_tag }}
+          git push origin ${{ needs.version-info.outputs.new_tag }}
+      - name: Create a new release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version-info.outputs.new_tag }}
+          body: ${{ needs.generate-changelog.outputs.release_changelog }}
+          target_commitish: ${{ steps.commit-and-push.outputs.commit }}
