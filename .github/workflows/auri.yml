@@ -1,6 +1,11 @@
-name: auri
+name: Auri
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - 'v*.*.*'
 
 # unfortunately there is no way to reuse job init steps :-(
 # https://stackoverflow.com/questions/65242830/in-a-github-actions-workflow-is-there-a-way-to-have-multiple-jobs-reuse-the-sam
@@ -71,6 +76,41 @@ jobs:
            cp fixtures/testing-config.env .env
            make test
 
+  build-data:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.build_data.outputs.version }}
+      release: ${{ steps.build_data.outputs.release }}
+      upload_target: ${{ steps.build_data.outputs.target }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: determine last major.minor version
+        id: determine_last_version
+        run: |
+          last_tag=$(git describe --tags $(git rev-list --tags --max-count=1 ))
+          if [[ ! "$last_tag" =~ ^v[0-9]*\.[0-9]*\.[0-9]*$ ]]; then
+            echo "Last tag found doesn't match the tag scheme v1.2.3";
+            exit 1;
+          fi
+          echo "::set-output name=version::$(echo $last_tag | cut -dv -f2 | cut -d. -f1-2)"
+          echo "::set-output name=patch_version::$(echo $last_tag | cut -dv -f2 | cut -d. -f3)"
+      - name: set build data
+        id: build_data
+        run: |
+          if [[ "${{ github.ref }}" =~ ^refs/tags/.*$ ]]; then
+            echo "Running on the release tag - building release..."
+            echo "::set-output name=version::${{ steps.determine_last_version.outputs.version }}.${{ steps.determine_last_version.outputs.patch_version }}"
+            echo "::set-output name=release::0"
+            echo "::set-output name=target::auri/releases"
+          else
+            echo "Running on the branch - building nightly..."
+            echo "::set-output name=version::${{ steps.determine_last_version.outputs.version }}.9999"
+            echo "::set-output name=release::${{ github.run_number }}"
+            echo "::set-output name=target::auri/nightly"
+          fi
+
   build-binary:
     runs-on: ubuntu-latest
     strategy:
@@ -104,7 +144,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ matrix.node }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node }}-yarn-
-
       - name: setup environment
         run: |
           go install github.com/gobuffalo/buffalo/buffalo@v${{ matrix.gobuffalo }}
@@ -117,31 +156,11 @@ jobs:
           name: auri-binary
           path: bin/auri
 
-  get-version:
-    runs-on: ubuntu-latest
-    outputs:
-      nightly_version: ${{ steps.nightly_version.outputs.version }}
-      nightly_release: ${{ steps.nightly_release.outputs.release }}
-    steps:
-      - name: determine last minor.major version
-        id: determine_last_version
-        run: |
-          echo "::set-output name=version::0.0"
-      - name: build nightly version
-        id: nightly_version
-        run: |
-          echo "::set-output name=version::${{ steps.determine_last_version.outputs.version }}.9999"
-      - name: build nightly release
-        id: nightly_release
-        run: |
-          echo "::set-output name=release::$GITHUB_RUN_NUMBER"
-
-
   build-rpm:
     runs-on: ubuntu-latest
     needs:
-     - get-version
-     - build-binary
+      - build-data
+      - build-binary
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
@@ -158,8 +177,8 @@ jobs:
           tar cfz ../../rpmbuild/SOURCES/auri.tgz *
       - name: set proper version numbers
         run: |
-          sed -i 's/Version:.*/Version:        ${{ needs.get-version.outputs.nightly_version }}/' rpm/auri.spec
-          sed -i 's/Release:.*/Release:        ${{ needs.get-version.outputs.nightly_release }}/' rpm/auri.spec
+          sed -i 's/Version:.*/Version:        ${{ needs.build-data.outputs.version }}/' rpm/auri.spec
+          sed -i 's/Release:.*/Release:        ${{ needs.build-data.outputs.release }}/' rpm/auri.spec
       - name: build rpm
         run: |
           rpmbuild -ba rpm/auri.spec --define "_topdir $PWD/rpmbuild"
@@ -172,10 +191,12 @@ jobs:
           name: auri.rpm
           path: rpmbuild/RPMS/x86_64/*.rpm
 
-  upload-nightly-rpm:
-    if: ${{ github.repository == 'auri/auri' && github.ref == 'refs/heads/main' }}
+  upload-rpm:
+    if: github.repository == 'auri/auri' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
-    needs: build-rpm
+    needs:
+      - build-data
+      - build-rpm
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
@@ -194,4 +215,4 @@ jobs:
           copr_url = https://copr.fedorainfracloud.org
           EOF
       - name: upload source rpm
-        run: copr-cli build --nowait auri/nightly *.src.rpm
+        run: copr-cli build --nowait ${{ needs.build-data.outputs.upload_target }} *.src.rpm
