@@ -1,5 +1,8 @@
 # Auri
 
+[![GitHub Actions](https://github.com/auri/auri/actions/workflows/auri.yml/badge.svg)](https://github.com/auri/auri/actions/workflows/auri.yml)
+[![Copr build status](https://copr.fedorainfracloud.org/coprs/auri/releases/package/auri/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/auri/releases/package/auri/)
+
 Auri stands for: `A`utomated `U`ser `R`egistration `I`PA
 
 Auri implements [self service account creation and reset of credentials](https://www.freeipa.org/page/Self-Service_Password_Reset) for [FreeIPA](https://www.freeipa.org/)
@@ -19,7 +22,12 @@ Auri implements [self service account creation and reset of credentials](https:/
 
 ## Installation
 
-Auri can be installed from rpm package, provided via CORP repository. This is work-in-progress, this installation instructions will be updated once it's ready.
+Please use following [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/auri/releases/) for installation:
+
+```bash
+sudo wget -O /etc/yum.repos.d/auri.repo https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-8/auri-releases-epel-8.repo
+sudo yum install auri # use dnf on EL8 and Fedora
+```
 
 ## Configuration
 
