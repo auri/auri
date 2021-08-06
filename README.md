@@ -46,7 +46,7 @@ Auri RPM file contains two configuration files with default settings:
 - `/etc/auri/database.yml` - DB connection settings
 - `/etc/auri/config.env` - configuration file for auri
 
-Feel free to adapt the files as needed, keep in mind to restart auri in case of configuration changes.
+Change the configuration files as needed and set the mandatory configuration options. Keep in mind to restart auri in case of configuration changes.
 
 Update the database scheme, enable and start auri:
 
