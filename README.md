@@ -20,16 +20,26 @@ Auri implements [self service account creation and reset of credentials](https:/
 
 ![Workflow overview](docs/workflow.png)
 
-## Installation
+## Requirements
 
-Please use following [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/auri/releases/) for installation:
+- Linux (RH family)
+- PostgreSQL (tested with PostgreSQL 12)
+- FreeIPA (tested with FreeIPA 4.6.8 on CentOS 7)
+
+## Installation and configuration
+
+Install and configure PostgreSQL (see [this](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7) HowTo). Create a database and according user. 
+
+Use the [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/auri/releases/) for auri installation:
 
 ```bash
-sudo wget -O /etc/yum.repos.d/auri.repo https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-8/auri-releases-epel-8.repo
-sudo yum install auri # use dnf on EL8 and Fedora
+$ wget -O /etc/yum.repos.d/auri.repo \
+       https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-8/auri-releases-epel-8.repo
+# on EL7
+$ yum install auri
+# on EL8 and Fedoro
+$ dnf install auri
 ```
-
-## Configuration
 
 Auri RPM file contains two configuration files with default settings:
 
@@ -38,19 +48,24 @@ Auri RPM file contains two configuration files with default settings:
 
 Feel free to adapt the files as needed, keep in mind to restart auri in case of configuration changes.
 
-## Tasks
+Update the database scheme, enable and start auri:
 
-Auri binary provides several maintenance tasks, see `auri --help` and `auri task list` for more details.
+```bash
+$ auri migrate
+$ systemctl enable auri
+$ systemctl start auri
+```
 
-## Recurring routings aka cron jobs
-
-In order to remove expired requests or execute other maintenance routines, you can create a cron job like below:
-
+Create the maintenance cronjobs for removal of expired requests and tokens:
 ```bash
 $ cat > /etc/cron.d/auri <<EOF
 0 3 * * * root auri task cleanup_requests && auri task cleanup_reset_tokens
 EOF
 ```
+
+## Tasks
+
+Auri binary provides several maintenance tasks, see `auri --help` and `auri task list` for more details.
 
 ## Development environment
 
