@@ -264,7 +264,7 @@ of account request<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:Label
           <y:Geometry height="40.0" width="206.3337449406216" x="626.1865304083996" y="1100.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="32.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="188.693359375" x="8.820192782810864" xml:space="preserve" y="3.8671875">notification to the requester
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="32.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="188.693359375" x="8.82019278281075" xml:space="preserve" y="3.8671875">notification to the requester
 including credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -290,7 +290,6 @@ including credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4
       </data>
     </node>
     <node id="n26">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.terminator">
           <y:Geometry height="40.0" width="147.41070186422786" x="45.58929813577214" y="1300.0"/>
@@ -301,7 +300,6 @@ including credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4
       </data>
     </node>
     <node id="n27">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.data">
           <y:Geometry height="40.0" width="206.3337449406216" x="223.17022212780597" y="1300.0"/>
@@ -312,13 +310,12 @@ including credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4
       </data>
     </node>
     <node id="n28">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.decision">
           <y:Geometry height="156.06759155445548" width="345.53993328710953" x="877.2300333564451" y="1240.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="32.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="276.009765625" x="34.76508383105477" xml:space="preserve" y="61.900983277227624">email address found in FreeIPA direction
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="32.265625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="276.009765625" x="34.76508383105488" xml:space="preserve" y="61.900983277227624">email address found in FreeIPA directory
 (only one single result with full match allowed)<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
@@ -370,7 +367,7 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
           <y:Geometry height="40.0" width="230.33262838812288" x="1076.9095261770467" y="1600.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="216.68359375" x="6.824517319061329" xml:space="preserve" y="10.93359375">Credential reset request was created<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="216.68359375" x="6.824517319061442" xml:space="preserve" y="10.93359375">Credential reset request was created<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
@@ -417,7 +414,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </node>
     <node id="n38">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.data">
           <y:Geometry height="68.08705829829114" width="180.5236250065161" x="759.4609041272645" y="1705.9564708508544"/>
@@ -431,13 +427,12 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </node>
     <node id="n39">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.decision">
           <y:Geometry height="104.0" width="301.18558409904426" x="1019.407207950478" y="1688.0"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="246.958984375" x="27.11329986202213" xml:space="preserve" y="42.93359375">Credentials fullfill the complexity criteria?<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="246.958984375" x="27.113299862022018" xml:space="preserve" y="42.93359375">Credentials fullfill the complexity criteria?<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
@@ -452,13 +447,12 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </node>
     <node id="n41">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="40.0" width="218.125015195105" x="625.688454396496" y="1960.0000000000002"/>
           <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="200.21875" x="8.95313259755244" xml:space="preserve" y="10.93359375">Set the new credentials in FreeIPA<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="200.21875" x="8.953132597552553" xml:space="preserve" y="10.93359375">Set the new credentials in FreeIPA<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
         </y:GenericNode>
       </data>
     </node>
@@ -741,7 +735,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e25" source="n26" target="n27">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -765,7 +758,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e27" source="n27" target="n29">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -776,7 +768,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e28" source="n29" target="n28">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -788,7 +779,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e29" source="n28" target="n30">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -802,7 +792,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e30" source="n30" target="n27">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -823,7 +812,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e32" source="n32" target="n33">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -834,7 +822,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e33" source="n28" target="n31">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -893,7 +880,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e38" source="n36" target="n38">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -905,7 +891,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e39" source="n38" target="n39">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -916,7 +901,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e40" source="n40" target="n38">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -927,7 +911,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e41" source="n39" target="n40">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -951,7 +934,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e43" source="n41" target="n43">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -962,7 +944,6 @@ with credential reset token<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/>
       </data>
     </edge>
     <edge id="e44" source="n39" target="n41">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
