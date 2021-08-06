@@ -208,6 +208,9 @@ func (u *Request) Login(index int) string {
 		login = strings.ReplaceAll(login, k, v)
 	}
 
+	//login isn't allowed to have spaces
+	login = strings.ReplaceAll(login, " ", "")
+
 	if index > 0 {
 		login = login + strconv.Itoa(index)
 	}

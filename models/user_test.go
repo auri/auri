@@ -108,7 +108,6 @@ func (ms *ModelSuite) Test_RequestLogin() {
 		Name:     "Abc",
 		LastName: "Xyz",
 	}
-
 	ms.Equal("axyz", u.Login(0))
 	ms.Equal("axyz1", u.Login(1))
 
@@ -116,7 +115,12 @@ func (ms *ModelSuite) Test_RequestLogin() {
 		Name:     "ÄäÜüÖößabC",
 		LastName: "XyzÄäÜüÖößxyZ",
 	}
-
 	ms.Equal("aexyzaeaeueueoeoessxyz", umlauts.Login(0))
 	ms.Equal("aexyzaeaeueueoeoessxyz1", umlauts.Login(1))
+
+	spaces := Request{
+		Name:     "Ab C",
+		LastName: "De Xyz",
+	}
+	ms.Equal("adexyz", spaces.Login(0))
 }
