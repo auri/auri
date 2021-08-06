@@ -6,7 +6,7 @@
 # defaults for environment vars
 ENV['AURI_POSTGRES_PORT'] ||= '5432'
 ENV['AURI_BUFFALO_PORT'] ||= '3000'
-ENV['AURI_GO_VERSION'] ||= '1.16.4'
+ENV['AURI_GO_VERSION'] ||= '1.16.7'
 ENV['AURI_BUFFALO_VERSION'] ||= '0.16.16'
 
 Vagrant.configure('2') do |config|
