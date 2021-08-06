@@ -1,5 +1,12 @@
 # Auri
 
+[![GitHub license](https://img.shields.io/github/license/auri/auri.svg)](https://github.com/auri/auri/blob/master/LICENSE)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/auri/auri/graphs/commit-activity)
+[![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
+[![made-with-Gobuffalo](https://img.shields.io/badge/Made%20with-Buffalo-blue.svg)](https://gobuffalo.io/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/auri/auri)](https://goreportcard.com/report/github.com/auri/auri)
+
+[![GitHub release](https://img.shields.io/github/release/auri/auri.svg)](https://GitHub.com/auri/auri/releases/)
 [![GitHub Actions](https://github.com/auri/auri/actions/workflows/auri.yml/badge.svg)](https://github.com/auri/auri/actions/workflows/auri.yml)
 [![Copr build status](https://copr.fedorainfracloud.org/coprs/auri/releases/package/auri/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/auri/releases/package/auri/)
 
