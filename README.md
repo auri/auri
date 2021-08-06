@@ -78,6 +78,16 @@ so you can start the development environment via vagrant in a virtual machine li
 1. Invoke `vagrant up` and grab a coffee
 
 Invoke `vagrant ssh` to get to the VM, invoke `buffalo dev` in the VM in order to start Auri in the development mode. 
+You can set the configuration parameters in the development mode via creating the `.env` file in the top-level.
+See [the configuration file](rpm/assets/config.env) for possible options.
+
+Unit tests can be executed using the prepared configuration file:
+
+```bash
+$ cp fixtures/testing-config.env .env
+$ make test
+...
+```
 
 ## Authors
 
