@@ -1,8 +1,24 @@
 # Changelog
 
+## [v0.0.2](https://github.com/auri/auri/tree/v0.0.2) (2021-08-06)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.1...v0.0.2)
+
+**Fixed bugs:**
+
+- Accounts can't be created if name have a space [\#10](https://github.com/auri/auri/issues/10)
+
+**Merged pull requests:**
+
+- Fix: login isn't allowed to have spaces [\#11](https://github.com/auri/auri/pull/11) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Docs: setting configuration options in the dev mode [\#9](https://github.com/auri/auri/pull/9) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Update dev env to Go 1.16.7 [\#8](https://github.com/auri/auri/pull/8) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Config: be clear about mandatory options [\#7](https://github.com/auri/auri/pull/7) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Docs: detailed installation steps [\#6](https://github.com/auri/auri/pull/6) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.1](https://github.com/auri/auri/tree/v0.0.1) (2021-08-05)
 
-[Full Changelog](https://github.com/auri/auri/compare/v0.0.0...v0.0.1)
+[Full Changelog](https://github.com/auri/auri/compare/6ecc600fbfd956d9aa554dfac755b08e678c8a15...v0.0.1)
 
 **Merged pull requests:**
 
@@ -11,10 +27,6 @@
 - CI: support release builds [\#3](https://github.com/auri/auri/pull/3) ([artem-sidorenko](https://github.com/artem-sidorenko))
 - CI fix: don't hide the copr username [\#2](https://github.com/auri/auri/pull/2) ([artem-sidorenko](https://github.com/artem-sidorenko))
 - CI: enable GH actions [\#1](https://github.com/auri/auri/pull/1) ([artem-sidorenko](https://github.com/artem-sidorenko))
-
-## [v0.0.0](https://github.com/auri/auri/tree/v0.0.0) (2021-08-04)
-
-[Full Changelog](https://github.com/auri/auri/compare/6ecc600fbfd956d9aa554dfac755b08e678c8a15...v0.0.0)
 
 
 
