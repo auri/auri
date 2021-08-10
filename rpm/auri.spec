@@ -29,6 +29,11 @@ install -m 644 %{name}.service %{buildroot}/lib/systemd/system
 sed -i "s/# SESSION_SECRET=/\SESSION_SECRET=$(openssl rand -hex 30)/" %{_sysconfdir}/%{name}/config.env
 systemctl daemon-reload
 
+# try to upgrade the DB scheme in case of upgrades
+if [ $1 -eq 2 ]; then
+    auri migrate || (echo "Failed to upgrade the DB scheme, is Auri properly configured and the database is reachable?" && exit 1)
+fi
+
 %preun
 if [ $1 == 0 ]; then #uninstall
   systemctl unmask %{name}.service
