@@ -71,7 +71,12 @@ func App() *buffalo.App {
 		app.POST("/credentialreset/", CredentialsResetProcessRequest)
 		app.GET("/credentialreset/process/{tokenpwr}", CredentialsResetProcessToken)
 		app.POST("/credentialreset/process/{tokenpwr}/create", CredentialsResetProcessCredentials)
-		app.GET("/user/ipa-account/validation/{ipa_token_account_validation}/", ValidateTokenIPA)
+
+		// experimental things not in the production builds
+		if !config.IsProdBuild() {
+			app.GET("/user/ipa-account/validation/{ipa_token_account_validation}/", ValidateTokenIPA)
+		}
+
 		// URL for admin
 		admin := app.Group("/admin")
 		admin.Resource("/", RequestResource{})

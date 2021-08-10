@@ -1,3 +1,5 @@
+// +build !prodBuild
+
 package actions
 
 import (
