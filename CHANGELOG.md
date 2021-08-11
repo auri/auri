@@ -1,12 +1,23 @@
 # Changelog
 
+## [v0.0.3](https://github.com/auri/auri/tree/v0.0.3) (2021-08-11)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.2...v0.0.3)
+
+**Merged pull requests:**
+
+- CI: upload release assets for release builds [\#15](https://github.com/auri/auri/pull/15) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Excluding experimental feature from production build [\#14](https://github.com/auri/auri/pull/14) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- RPM: try to run DB migrations in case of upgrades [\#13](https://github.com/auri/auri/pull/13) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- README: some badges [\#12](https://github.com/auri/auri/pull/12) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.2](https://github.com/auri/auri/tree/v0.0.2) (2021-08-06)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.1...v0.0.2)
 
 **Fixed bugs:**
 
-- Accounts can't be created if name have a space [\#10](https://github.com/auri/auri/issues/10)
+- Accounts can't be created if name has a space [\#10](https://github.com/auri/auri/issues/10)
 
 **Merged pull requests:**
 
