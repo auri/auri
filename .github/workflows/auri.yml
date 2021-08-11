@@ -191,6 +191,33 @@ jobs:
           name: auri.rpm
           path: rpmbuild/RPMS/x86_64/*.rpm
 
+  upload-release-assets:
+    if: github.repository == 'auri/auri' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs:
+      - build-rpm
+      - build-binary
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: auri.src.rpm
+      - uses: actions/download-artifact@v2
+        with:
+          name: auri.rpm
+      - uses: actions/download-artifact@v2
+        with:
+          name: auri-binary
+      - name: rename auri binary
+        run: mv auri auri-binary-linux-x86_64
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *.rpm
+            auri-binary-linux-x86_64
+
   upload-rpm:
     if: github.repository == 'auri/auri' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
