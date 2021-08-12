@@ -34,7 +34,7 @@ func Env(key string) (string, error) {
 
 // Env will return the specified environment variable,
 // or the second argument, if not found
-//	<%= envOr("GOPATH", "~/go) %>
+//	<%= envOr("GOPATH", "~/go") %>
 func EnvOr(key string, def string) string {
 	s := os.Getenv(key)
 	if len(s) == 0 {

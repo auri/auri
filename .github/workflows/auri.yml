@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.16.7' ]
-        gobuffalo: [ '0.16.23' ]
+        gobuffalo: [ '0.17.1' ]
     services:
       postgres:
         image: postgres:12
@@ -70,7 +70,7 @@ jobs:
 
       - name: setup environment
         run: |
-          go install github.com/gobuffalo/buffalo/buffalo@v${{ matrix.gobuffalo }}
+          go install github.com/gobuffalo/cli/cmd/buffalo@v${{ matrix.gobuffalo }}
       - name: run unit tests
         run: |
            cp fixtures/testing-config.env .env
@@ -119,7 +119,7 @@ jobs:
       matrix:
         go: [ '1.16.7' ]
         node: [ '14' ]
-        gobuffalo: [ '0.16.23' ]
+        gobuffalo: [ '0.17.1' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -148,7 +148,7 @@ jobs:
             ${{ runner.os }}-node-${{ matrix.node }}-yarn-
       - name: setup environment
         run: |
-          go install github.com/gobuffalo/buffalo/buffalo@v${{ matrix.gobuffalo }}
+          go install github.com/gobuffalo/cli/cmd/buffalo@v${{ matrix.gobuffalo }}
       - name: build the binary
         run: |
           yarn install

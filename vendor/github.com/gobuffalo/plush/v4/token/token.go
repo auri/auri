@@ -11,16 +11,18 @@ type Token struct {
 }
 
 var keywords = map[string]Type{
-	"fn":     FUNCTION,
-	"func":   FUNCTION,
-	"let":    LET,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"else":   ELSE,
-	"return": RETURN,
-	"for":    FOR,
-	"in":     IN,
+	"fn":       FUNCTION,
+	"func":     FUNCTION,
+	"let":      LET,
+	"true":     TRUE,
+	"false":    FALSE,
+	"if":       IF,
+	"else":     ELSE,
+	"return":   RETURN,
+	"for":      FOR,
+	"in":       IN,
+	"continue": CONTINUE,
+	"break":    BREAK,
 }
 
 // LookupIdent an ident and return a keyword type, or a plain ident

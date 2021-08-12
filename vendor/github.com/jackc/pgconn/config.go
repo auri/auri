@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,7 +12,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"os/user"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -21,14 +21,13 @@ import (
 	"github.com/jackc/pgpassfile"
 	"github.com/jackc/pgproto3/v2"
 	"github.com/jackc/pgservicefile"
-	errors "golang.org/x/xerrors"
 )
 
 type AfterConnectFunc func(ctx context.Context, pgconn *PgConn) error
 type ValidateConnectFunc func(ctx context.Context, pgconn *PgConn) error
 
-// Config is the settings used to establish a connection to a PostgreSQL server. It must be created by ParseConfig and
-// then it can be modified. A manually initialized Config will cause ConnectConfig to panic.
+// Config is the settings used to establish a connection to a PostgreSQL server. It must be created by ParseConfig. A
+// manually initialized Config will cause ConnectConfig to panic.
 type Config struct {
 	Host           string // host (e.g. localhost) or absolute path to unix domain socket directory (e.g. /private/tmp)
 	Port           uint16
@@ -112,16 +111,22 @@ func NetworkAddress(host string, port uint16) (network, address string) {
 	return network, address
 }
 
-// ParseConfig builds a []*Config with similar behavior to the PostgreSQL standard C library libpq. It uses the same
-// defaults as libpq (e.g. port=5432) and understands most PG* environment variables. connString may be a URL or a DSN.
-// It also may be empty to only read from the environment. If a password is not supplied it will attempt to read the
-// .pgpass file.
+// ParseConfig builds a *Config with similar behavior to the PostgreSQL standard C library libpq. It uses the same
+// defaults as libpq (e.g. port=5432) and understands most PG* environment variables. ParseConfig closely matches
+// the parsing behavior of libpq. connString may either be in URL format or keyword = value format (DSN style). See
+// https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING for details. connString also may be
+// empty to only read from the environment. If a password is not supplied it will attempt to read the .pgpass file.
 //
 //   # Example DSN
 //   user=jack password=secret host=pg.example.com port=5432 dbname=mydb sslmode=verify-ca
 //
 //   # Example URL
 //   postgres://jack:secret@pg.example.com:5432/mydb?sslmode=verify-ca
+//
+// The returned *Config may be modified. However, it is strongly recommended that any configuration that can be done
+// through the connection string be done there. In particular the fields Host, Port, TLSConfig, and Fallbacks can be
+// interdependent (e.g. TLSConfig needs knowledge of the host to validate the server certificate). These fields should
+// not be modified individually. They should all be modified or all left unchanged.
 //
 // ParseConfig supports specifying multiple hosts in similar manner to libpq. Host and port may include comma separated
 // values that will be tried in order. This can be used as part of a high availability system. See
@@ -154,13 +159,20 @@ func NetworkAddress(host string, port uint16) (network, address string) {
 // See https://www.postgresql.org/docs/11/libpq-connect.html#LIBPQ-PARAMKEYWORDS for parameter key word names. They are
 // usually but not always the environment variable name downcased and without the "PG" prefix.
 //
-// Important TLS Security Notes:
+// Important Security Notes:
 //
 // ParseConfig tries to match libpq behavior with regard to PGSSLMODE. This includes defaulting to "prefer" behavior if
 // not set.
 //
 // See http://www.postgresql.org/docs/11/static/libpq-ssl.html#LIBPQ-SSL-PROTECTION for details on what level of
 // security each sslmode provides.
+//
+// The sslmode "prefer" (the default), sslmode "allow", and multiple hosts are implemented via the Fallbacks field of
+// the Config struct. If TLSConfig is manually changed it will not affect the fallbacks. For example, in the case of
+// sslmode "prefer" this means it will first try the main Config settings which use TLS, then it will try the fallback
+// which does not use TLS. This can lead to an unexpected unencrypted connection if the main TLS config is manually
+// changed later but the unencrypted fallback is present. Ensure there are no stale fallbacks when manually setting
+// TLCConfig.
 //
 // Other known differences with libpq:
 //
@@ -326,48 +338,6 @@ func ParseConfig(connString string) (*Config, error) {
 	return config, nil
 }
 
-func defaultSettings() map[string]string {
-	settings := make(map[string]string)
-
-	settings["host"] = defaultHost()
-	settings["port"] = "5432"
-
-	// Default to the OS user name. Purposely ignoring err getting user name from
-	// OS. The client application will simply have to specify the user in that
-	// case (which they typically will be doing anyway).
-	user, err := user.Current()
-	if err == nil {
-		settings["user"] = user.Username
-		settings["passfile"] = filepath.Join(user.HomeDir, ".pgpass")
-		settings["servicefile"] = filepath.Join(user.HomeDir, ".pg_service.conf")
-	}
-
-	settings["target_session_attrs"] = "any"
-
-	settings["min_read_buffer_size"] = "8192"
-
-	return settings
-}
-
-// defaultHost attempts to mimic libpq's default host. libpq uses the default unix socket location on *nix and localhost
-// on Windows. The default socket location is compiled into libpq. Since pgx does not have access to that default it
-// checks the existence of common locations.
-func defaultHost() string {
-	candidatePaths := []string{
-		"/var/run/postgresql", // Debian
-		"/private/tmp",        // OSX - homebrew
-		"/tmp",                // standard PostgreSQL
-	}
-
-	for _, path := range candidatePaths {
-		if _, err := os.Stat(path); err == nil {
-			return path
-		}
-	}
-
-	return "localhost"
-}
-
 func mergeSettings(settingSets ...map[string]string) map[string]string {
 	settings := make(map[string]string)
 
@@ -439,7 +409,7 @@ func parseURLSettings(connString string) (map[string]string, error) {
 		}
 		h, p, err := net.SplitHostPort(host)
 		if err != nil {
-			return nil, errors.Errorf("failed to split host:port in '%s', err: %w", host, err)
+			return nil, fmt.Errorf("failed to split host:port in '%s', err: %w", host, err)
 		}
 		hosts = append(hosts, h)
 		ports = append(ports, p)
@@ -485,7 +455,8 @@ func parseDSNSettings(s string) (map[string]string, error) {
 
 		key = strings.Trim(s[:eqIdx], " \t\n\r\v\f")
 		s = strings.TrimLeft(s[eqIdx+1:], " \t\n\r\v\f")
-		if s[0] != '\'' {
+		if len(s) == 0 {
+		} else if s[0] != '\'' {
 			end := 0
 			for ; end < len(s); end++ {
 				if asciiSpace[s[end]] == 1 {
@@ -493,6 +464,9 @@ func parseDSNSettings(s string) (map[string]string, error) {
 				}
 				if s[end] == '\\' {
 					end++
+					if end == len(s) {
+						return nil, errors.New("invalid backslash")
+					}
 				}
 			}
 			val = strings.Replace(strings.Replace(s[:end], "\\\\", "\\", -1), "\\'", "'", -1)
@@ -527,6 +501,10 @@ func parseDSNSettings(s string) (map[string]string, error) {
 			key = k
 		}
 
+		if key == "" {
+			return nil, errors.New("invalid dsn")
+		}
+
 		settings[key] = val
 	}
 
@@ -536,12 +514,12 @@ func parseDSNSettings(s string) (map[string]string, error) {
 func parseServiceSettings(servicefilePath, serviceName string) (map[string]string, error) {
 	servicefile, err := pgservicefile.ReadServicefile(servicefilePath)
 	if err != nil {
-		fmt.Errorf("failed to read service file: %v", servicefile)
+		return nil, fmt.Errorf("failed to read service file: %v", servicefilePath)
 	}
 
 	service, err := servicefile.GetService(serviceName)
 	if err != nil {
-		fmt.Errorf("unable to find service: %v", servicefile)
+		return nil, fmt.Errorf("unable to find service: %v", serviceName)
 	}
 
 	nameMap := map[string]string{
@@ -557,13 +535,6 @@ func parseServiceSettings(servicefilePath, serviceName string) (map[string]strin
 	}
 
 	return settings, nil
-}
-
-type pgTLSArgs struct {
-	sslMode     string
-	sslRootCert string
-	sslCert     string
-	sslKey      string
 }
 
 // configTLS uses libpq's TLS parameters to construct  []*tls.Config. It is
@@ -646,11 +617,11 @@ func configTLS(settings map[string]string) ([]*tls.Config, error) {
 		caPath := sslrootcert
 		caCert, err := ioutil.ReadFile(caPath)
 		if err != nil {
-			return nil, errors.Errorf("unable to read CA file: %w", err)
+			return nil, fmt.Errorf("unable to read CA file: %w", err)
 		}
 
 		if !caCertPool.AppendCertsFromPEM(caCert) {
-			return nil, errors.Errorf("unable to add CA to cert pool: %w", err)
+			return nil, errors.New("unable to add CA to cert pool")
 		}
 
 		tlsConfig.RootCAs = caCertPool
@@ -664,7 +635,7 @@ func configTLS(settings map[string]string) ([]*tls.Config, error) {
 	if sslcert != "" && sslkey != "" {
 		cert, err := tls.LoadX509KeyPair(sslcert, sslkey)
 		if err != nil {
-			return nil, errors.Errorf("unable to read cert: %w", err)
+			return nil, fmt.Errorf("unable to read cert: %w", err)
 		}
 
 		tlsConfig.Certificates = []tls.Certificate{cert}

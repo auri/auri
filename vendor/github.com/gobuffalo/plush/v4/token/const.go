@@ -61,4 +61,6 @@ const (
 	RETURN   = "RETURN"
 	FOR      = "FOR"
 	IN       = "IN"
+	CONTINUE = "CONTINUE"
+	BREAK    = "BREAK"
 )

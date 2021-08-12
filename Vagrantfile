@@ -7,7 +7,7 @@
 ENV['AURI_POSTGRES_PORT'] ||= '5432'
 ENV['AURI_BUFFALO_PORT'] ||= '3000'
 ENV['AURI_GO_VERSION'] ||= '1.16.7'
-ENV['AURI_BUFFALO_VERSION'] ||= '0.16.16'
+ENV['AURI_BUFFALO_VERSION'] ||= '0.17.1'
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'bento/centos-7'
@@ -109,8 +109,8 @@ Vagrant.configure('2') do |config|
     yum -y install https://rpm.nodesource.com/pub_14.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm # source of nodejs
     yum -y install gcc gcc-c++ automake make nodejs git && yum clean all
 
-    git clone https://github.com/gobuffalo/buffalo.git && cd buffalo && git checkout v#{ENV['AURI_BUFFALO_VERSION']} && \
-      go mod tidy && cd buffalo && GO111MODULE=on go build -tags sqlite && mv buffalo /usr/local/go/bin/
+    git clone https://github.com/gobuffalo/cli.git && cd cli && git checkout v#{ENV['AURI_BUFFALO_VERSION']} && \
+      go mod tidy && cd cmd/buffalo/ && go build -tags sqlite && mv buffalo /usr/local/go/bin/
 
     # npm works with symlinks, which do not work on vagrant virtualbox shares
     mkdir -p /node_modules /vagrant/node_modules

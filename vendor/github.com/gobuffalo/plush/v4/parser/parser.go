@@ -33,6 +33,8 @@ func newParser(l *lexer.Lexer) *parser {
 
 	p.prefixParseFns = make(map[token.Type]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.CONTINUE, p.parseForLoopControlFlow)
+	p.registerPrefix(token.BREAK, p.parseForLoopControlFlow)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.FLOAT, p.parseFloatLiteral)
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
@@ -85,6 +87,7 @@ type parser struct {
 
 	prefixParseFns map[token.Type]prefixParseFn
 	infixParseFns  map[token.Type]infixParseFn
+	inForBlock     bool
 }
 
 func (p *parser) parseProgram() *ast.Program {
@@ -131,6 +134,11 @@ func (p *parser) expectPeek(t token.Type) bool {
 	return false
 }
 
+func (p *parser) invalidIfCondition(t string) {
+	msg := fmt.Sprintf("line %d: syntax error: invalid if condition, got %s", p.curToken.LineNumber, t)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *parser) peekError(t token.Type) {
 	msg := fmt.Sprintf("line %d: expected next token to be %s, got %s instead", p.curToken.LineNumber, t, p.peekToken.Type)
 	p.errors = append(p.errors, msg)
@@ -142,7 +150,6 @@ func (p *parser) noPrefixParseFnError(t token.Type) {
 }
 
 func (p *parser) parseStatement() ast.Statement {
-	// fmt.Println("parseStatement")
 	switch p.curToken.Type {
 	case token.LET:
 		l := p.parseLetStatement()
@@ -164,11 +171,9 @@ func (p *parser) parseStatement() ast.Statement {
 }
 
 func (p *parser) parseReturnStatement(t string) *ast.ReturnStatement {
-	// fmt.Println("parseReturnStatement")
 	stmt := &ast.ReturnStatement{Type: t, TokenAble: ast.TokenAble{p.curToken}}
 
 	p.nextToken()
-
 	stmt.ReturnValue = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(token.SEMICOLON) {
@@ -179,7 +184,6 @@ func (p *parser) parseReturnStatement(t string) *ast.ReturnStatement {
 }
 
 func (p *parser) parseLetStatement() *ast.LetStatement {
-	// fmt.Println("parseLetStatement")
 	stmt := &ast.LetStatement{TokenAble: ast.TokenAble{p.curToken}}
 
 	if !p.expectPeek(token.IDENT) {
@@ -204,7 +208,7 @@ func (p *parser) parseLetStatement() *ast.LetStatement {
 }
 
 func (p *parser) parseExpressionStatement() *ast.ExpressionStatement {
-	// fmt.Println("parseExpressionStatement")
+
 	stmt := &ast.ExpressionStatement{TokenAble: ast.TokenAble{p.curToken}}
 
 	stmt.Expression = p.parseExpression(LOWEST)
@@ -257,9 +261,9 @@ func (p *parser) curPrecedence() int {
 }
 
 func (p *parser) parseIdentifier() ast.Expression {
-	// fmt.Println("parseIdentifier")
 
 	id := &ast.Identifier{TokenAble: ast.TokenAble{p.curToken}}
+	orignalCalleAddress := id
 	ss := strings.Split(p.curToken.Literal, ".")
 	id.Value = ss[0]
 
@@ -267,6 +271,10 @@ func (p *parser) parseIdentifier() ast.Expression {
 		s := ss[i]
 		id = &ast.Identifier{TokenAble: ast.TokenAble{p.curToken}, Value: s, Callee: id}
 	}
+
+	//To avoid a recursive loop to reach the original calle address
+	id.OriginalCallee = orignalCalleAddress
+	//}
 
 	if p.peekTokenIs(token.ASSIGN) {
 		return p.parseAssignExpression(id)
@@ -276,7 +284,6 @@ func (p *parser) parseIdentifier() ast.Expression {
 }
 
 func (p *parser) parseAssignExpression(id *ast.Identifier) ast.Expression {
-	// fmt.Println("parseAssignExpression")
 
 	ae := &ast.AssignExpression{TokenAble: ast.TokenAble{p.curToken}}
 	ae.Name = id
@@ -296,8 +303,37 @@ func (p *parser) parseAssignExpression(id *ast.Identifier) ast.Expression {
 	return ae
 }
 
+func (p *parser) parseForLoopControlFlow() ast.Expression {
+	var stmt ast.Expression
+	if !p.inForBlock {
+
+		p.errors = append(p.errors, fmt.Sprintf("line %d: %s is not in a loop", p.curToken.LineNumber, p.curToken.Literal))
+		return nil
+	}
+	if p.curTokenIs(token.BREAK) {
+
+		stmt = &ast.BreakExpression{TokenAble: ast.TokenAble{p.curToken}}
+	} else {
+		stmt = &ast.ContinueExpression{TokenAble: ast.TokenAble{p.curToken}}
+	}
+	return stmt
+}
+
+func (p *parser) parseContinue() ast.Expression {
+
+	if !p.inForBlock {
+
+		p.errors = append(p.errors, fmt.Sprintf("line %d: continue is not in a loop", p.curToken.LineNumber))
+		return nil
+	}
+
+	stmt := &ast.ContinueExpression{TokenAble: ast.TokenAble{p.curToken}}
+
+	return stmt
+}
+
 func (p *parser) parseIntegerLiteral() ast.Expression {
-	// fmt.Println("parseIntegerLiteral")
+
 	lit := &ast.IntegerLiteral{TokenAble: ast.TokenAble{p.curToken}}
 
 	value, err := strconv.Atoi(p.curToken.Literal)
@@ -313,7 +349,7 @@ func (p *parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *parser) parseFloatLiteral() ast.Expression {
-	// fmt.Println("parseFloatLiteral")
+
 	lit := &ast.FloatLiteral{TokenAble: ast.TokenAble{p.curToken}}
 
 	value, err := strconv.ParseFloat(p.curToken.Literal, 64)
@@ -329,12 +365,12 @@ func (p *parser) parseFloatLiteral() ast.Expression {
 }
 
 func (p *parser) parseStringLiteral() ast.Expression {
-	// fmt.Println("parseStringLiteral")
+
 	return &ast.StringLiteral{TokenAble: ast.TokenAble{p.curToken}, Value: p.curToken.Literal}
 }
 
 func (p *parser) parseCommentLiteral() ast.Expression {
-	// fmt.Println("parseCommentLiteral")
+
 	for p.curToken.Type != token.E_END {
 		p.nextToken()
 	}
@@ -342,12 +378,12 @@ func (p *parser) parseCommentLiteral() ast.Expression {
 }
 
 func (p *parser) parseHTMLLiteral() ast.Expression {
-	// fmt.Println("parseHTMLLiteral")
+
 	return &ast.HTMLLiteral{TokenAble: ast.TokenAble{p.curToken}, Value: p.curToken.Literal}
 }
 
 func (p *parser) parsePrefixExpression() ast.Expression {
-	// fmt.Println("parsePrefixExpression")
+
 	expression := &ast.PrefixExpression{
 		TokenAble: ast.TokenAble{p.curToken},
 		Operator:  p.curToken.Literal,
@@ -361,7 +397,7 @@ func (p *parser) parsePrefixExpression() ast.Expression {
 }
 
 func (p *parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	// fmt.Println("parseInfixExpression")
+
 	expression := &ast.InfixExpression{
 		TokenAble: ast.TokenAble{p.curToken},
 		Operator:  p.curToken.Literal,
@@ -376,12 +412,12 @@ func (p *parser) parseInfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *parser) parseBoolean() ast.Expression {
-	// fmt.Println("parseBoolean")
+
 	return &ast.Boolean{TokenAble: ast.TokenAble{p.curToken}, Value: p.curTokenIs(token.TRUE)}
 }
 
 func (p *parser) parseGroupedExpression() ast.Expression {
-	// fmt.Println("parseGroupedExpression")
+
 	p.nextToken()
 
 	exp := p.parseExpression(LOWEST)
@@ -394,7 +430,7 @@ func (p *parser) parseGroupedExpression() ast.Expression {
 }
 
 func (p *parser) parseForExpression() ast.Expression {
-	// fmt.Println("parseForExpression")
+
 	expression := &ast.ForExpression{
 		TokenAble: ast.TokenAble{p.curToken},
 		KeyName:   "_",
@@ -405,7 +441,7 @@ func (p *parser) parseForExpression() ast.Expression {
 		return nil
 	}
 	ln := p.curToken.LineNumber
-
+	p.inForBlock = true
 	s := []string{}
 	for !p.curTokenIs(token.RPAREN) {
 		if p.curTokenIs(token.IDENT) {
@@ -449,12 +485,12 @@ func (p *parser) parseForExpression() ast.Expression {
 	if p.curTokenIs(token.RBRACE) {
 		p.nextToken()
 	}
-
+	p.inForBlock = false
 	return expression
 }
 
 func (p *parser) parseIfExpression() ast.Expression {
-	// fmt.Println("parseIfExpression")
+
 	expression := &ast.IfExpression{TokenAble: ast.TokenAble{p.curToken}}
 
 	if !p.expectPeek(token.LPAREN) {
@@ -463,6 +499,11 @@ func (p *parser) parseIfExpression() ast.Expression {
 
 	p.nextToken()
 	expression.Condition = p.parseExpression(LOWEST)
+
+	//Confrim that expression is comparable
+	if !p.confrimIfCondition(expression.Condition) {
+		return nil
+	}
 
 	if !p.expectPeek(token.RPAREN) {
 		return nil
@@ -500,7 +541,7 @@ func (p *parser) parseIfExpression() ast.Expression {
 }
 
 func (p *parser) parseElseIfExpression() *ast.ElseIfExpression {
-	// fmt.Println("parseElseIfExpression")
+
 	expression := &ast.ElseIfExpression{TokenAble: ast.TokenAble{p.curToken}}
 
 	if !p.expectPeek(token.LPAREN) {
@@ -524,7 +565,7 @@ func (p *parser) parseElseIfExpression() *ast.ElseIfExpression {
 }
 
 func (p *parser) parseBlockStatement() *ast.BlockStatement {
-	// fmt.Println("parseBlockStatement")
+
 	block := &ast.BlockStatement{TokenAble: ast.TokenAble{p.curToken}}
 	block.Statements = []ast.Statement{}
 
@@ -546,7 +587,7 @@ func (p *parser) parseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *parser) parseFunctionLiteral() ast.Expression {
-	// fmt.Println("parseFunctionLiteral")
+
 	lit := &ast.FunctionLiteral{TokenAble: ast.TokenAble{p.curToken}}
 
 	if !p.expectPeek(token.LPAREN) {
@@ -554,7 +595,7 @@ func (p *parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	lit.Parameters = p.parseFunctionParameters()
-
+	p.inForBlock = false
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
@@ -565,7 +606,7 @@ func (p *parser) parseFunctionLiteral() ast.Expression {
 }
 
 func (p *parser) parseFunctionParameters() []*ast.Identifier {
-	// fmt.Println("parseFunctionParameters")
+
 	identifiers := []*ast.Identifier{}
 
 	if p.peekTokenIs(token.RPAREN) {
@@ -593,7 +634,7 @@ func (p *parser) parseFunctionParameters() []*ast.Identifier {
 }
 
 func (p *parser) parseCallExpression(function ast.Expression) ast.Expression {
-	// fmt.Println("parseCallExpression")
+
 	exp := &ast.CallExpression{
 		TokenAble: ast.TokenAble{p.curToken},
 		Function:  function,
@@ -629,7 +670,7 @@ func (p *parser) parseCallExpression(function ast.Expression) ast.Expression {
 }
 
 func (p *parser) parseExpressionList(end token.Type) []ast.Expression {
-	// fmt.Println("parseExpressionList")
+
 	list := []ast.Expression{}
 
 	if p.peekTokenIs(end) {
@@ -654,7 +695,7 @@ func (p *parser) parseExpressionList(end token.Type) []ast.Expression {
 }
 
 func (p *parser) parseArrayLiteral() ast.Expression {
-	// fmt.Println("parseArrayLiteral")
+
 	array := &ast.ArrayLiteral{TokenAble: ast.TokenAble{p.curToken}}
 
 	array.Elements = p.parseExpressionList(token.RBRACKET)
@@ -663,7 +704,7 @@ func (p *parser) parseArrayLiteral() ast.Expression {
 }
 
 func (p *parser) parseIndexExpression(left ast.Expression) ast.Expression {
-	// fmt.Println("parseIndexExpression")
+
 	exp := &ast.IndexExpression{TokenAble: ast.TokenAble{p.curToken}, Left: left}
 
 	p.nextToken()
@@ -673,11 +714,67 @@ func (p *parser) parseIndexExpression(left ast.Expression) ast.Expression {
 		return nil
 	}
 
+	if p.peekTokenIs(token.DOT) {
+		calleeIdent := &ast.Identifier{Value: left.String()}
+		p.nextToken()
+		p.nextToken()
+		parseExp := p.parseExpression(LOWEST)
+
+		exp.Callee = p.assignCallee(parseExp, calleeIdent)
+		if exp.Callee == nil {
+
+			return nil
+		}
+	}
+
+	if p.peekTokenIs(token.ASSIGN) {
+		p.nextToken()
+		p.nextToken()
+
+		exp.Value = p.parseExpression(LOWEST)
+	}
+
 	return exp
 }
 
+func (p *parser) assignCallee(exp ast.Expression, calleeIdent *ast.Identifier) (assignedCallee ast.Expression) {
+
+	assignedCallee = nil
+
+	switch ss := exp.(type) {
+
+	case *ast.IndexExpression:
+
+		ff, ok := ss.Left.(*ast.Identifier)
+		if ok {
+
+			ff.OriginalCallee.Callee = calleeIdent
+
+			assignedCallee = ss
+		} else {
+
+			msg := fmt.Sprintf("line %d: syntax error: invalid nested index access, expected an identifier %v", p.curToken.LineNumber, ss)
+			p.errors = append(p.errors, msg)
+
+		}
+	case *ast.Identifier:
+
+		ss.OriginalCallee.Callee = calleeIdent
+
+		assignedCallee = ss
+
+	default:
+
+		msg := fmt.Sprintf("line %d: syntax error: invalid nested index access, got %v", p.curToken.LineNumber, ss)
+		p.errors = append(p.errors, msg)
+
+	}
+
+	return
+}
+
 func (p *parser) parseHashLiteral() ast.Expression {
-	// fmt.Println("parseHashLiteral")
+
 	hash := &ast.HashLiteral{TokenAble: ast.TokenAble{p.curToken}}
 	hash.Pairs = make(map[ast.Expression]ast.Expression)
 	hash.Order = make([]ast.Expression, 0)
@@ -714,4 +811,30 @@ func (p *parser) registerPrefix(tokenType token.Type, fn prefixParseFn) {
 
 func (p *parser) registerInfix(tokenType token.Type, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *parser) confrimIfCondition(v ast.Expression) (returnData bool) {
+	_, ok := v.(ast.Comparable)
+	if !ok {
+		p.invalidIfCondition(v.String())
+		return
+	}
+
+	returnData = true
+
+	switch val := v.(type) {
+
+	case *ast.InfixExpression:
+		if !p.confrimIfCondition(val.Left) {
+			returnData = false
+		} else if !p.confrimIfCondition(val.Right) {
+			returnData = false
+		}
+	case *ast.PrefixExpression:
+		if !p.confrimIfCondition(val.Right) {
+			returnData = false
+		}
+	}
+
+	return
 }

@@ -1,14 +1,13 @@
 module github.com/jackc/pgtype
 
-go 1.12
+go 1.13
 
 require (
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/jackc/pgconn v1.5.1-0.20200601181101-fa742c524853
 	github.com/jackc/pgio v1.0.0
-	github.com/jackc/pgx v3.6.2+incompatible
-	github.com/jackc/pgx/v4 v4.0.0-pre1.0.20190824185557-6972a5742186
-	github.com/lib/pq v1.2.0
-	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24
-	github.com/stretchr/testify v1.4.0
-	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
+	github.com/jackc/pgx/v4 v4.6.1-0.20200606145419-4e5062306904
+	github.com/lib/pq v1.3.0
+	github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc
+	github.com/stretchr/testify v1.5.1
 )

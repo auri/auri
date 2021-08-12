@@ -2,12 +2,13 @@ package pop
 
 import (
 	"fmt"
-	"github.com/luna-duclos/instrumentedsql"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/luna-duclos/instrumentedsql"
 
 	"github.com/gobuffalo/pop/v5/internal/defaults"
 	"github.com/gobuffalo/pop/v5/logging"
@@ -43,6 +44,8 @@ type ConnectionDetails struct {
 	IdlePool int
 	// Defaults to 0 "unlimited". See https://golang.org/pkg/database/sql/#DB.SetConnMaxLifetime
 	ConnMaxLifetime time.Duration
+	// Defaults to 0 "unlimited". See https://golang.org/pkg/database/sql/#DB.SetConnMaxIdleTime
+	ConnMaxIdleTime time.Duration
 	// Defaults to `false`. See https://godoc.org/github.com/jmoiron/sqlx#DB.Unsafe
 	Unsafe  bool
 	Options map[string]string
@@ -179,6 +182,10 @@ func (cd *ConnectionDetails) OptionsString(s string) string {
 	}
 	if cd.Options != nil {
 		for k, v := range cd.Options {
+			if k == "migration_table_name" {
+				continue
+			}
+
 			s = fmt.Sprintf("%s&%s=%s", s, k, v)
 		}
 	}
