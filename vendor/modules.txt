@@ -48,6 +48,7 @@ github.com/gobuffalo/events/internal/safe
 github.com/gobuffalo/fizz
 github.com/gobuffalo/fizz/translators
 # github.com/gobuffalo/flect v0.2.3
+## explicit
 github.com/gobuffalo/flect
 github.com/gobuffalo/flect/name
 # github.com/gobuffalo/github_flavored_markdown v1.1.0
