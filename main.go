@@ -16,7 +16,7 @@ USAGE:
   auri [global options] [command]
 
 VERSION:
-   v0.0.0
+   %s
 
 AUTHORS:
   Mohamad Asswad <Mohamad.Asswad@telekom.de>
@@ -38,6 +38,7 @@ GLOBAL OPTIONS:
                  
 TASKS:           
   task list         Show the available tasks
+  
 `
 
 // main is the starting point of this Buffalo application.
@@ -61,7 +62,7 @@ func main() {
 func init() {
 	if len(os.Args) > 1 {
 		if os.Args[1] == "--help" || os.Args[1] == "help" {
-			fmt.Println(helpInfo)
+			fmt.Printf(helpInfo, config.GetVersion())
 			os.Exit(0)
 		} else if os.Args[1] == "--configdir" {
 			if len(os.Args) < 2 {
