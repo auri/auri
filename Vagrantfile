@@ -16,6 +16,7 @@ Vagrant.configure('2') do |config|
 
   # postgres installation
   config.vm.provision 'shell', inline: <<~EOS
+    set -e
     dist=`grep ^ID= /etc/*-release | awk -F '=' '{print $2}' | tr -d '"'`
     if [ "$dist" != "centos" ]; then
       echo 'Only centos is supported'
@@ -93,6 +94,8 @@ Vagrant.configure('2') do |config|
 
   # go installation
   config.vm.provision 'shell', inline: <<~EOS
+    set -e
+    yum -y install wget
     wget --progress=dot:giga -O golang.tgz https://golang.org/dl/go#{ENV['AURI_GO_VERSION']}.linux-amd64.tar.gz
     tar -C /usr/local -xzf golang.tgz
     cat > /etc/profile.d/golang.sh <<EOF
@@ -102,6 +105,7 @@ Vagrant.configure('2') do |config|
 
   # buffalo and nodejs installation
   config.vm.provision 'shell', inline: <<~EOS
+    set -e
     yum -y install https://rpm.nodesource.com/pub_14.x/el/7/x86_64/nodesource-release-el7-1.noarch.rpm # source of nodejs
     yum -y install gcc gcc-c++ automake make nodejs git && yum clean all
 
@@ -122,6 +126,7 @@ Vagrant.configure('2') do |config|
 
   # dependency installation
   config.vm.provision 'shell', inline: <<~EOS
+    set -e
     cd /vagrant
     yarn install
     buffalo plugins install
@@ -129,6 +134,7 @@ Vagrant.configure('2') do |config|
 
   # easy login to the dev folder
   config.vm.provision 'shell', inline: <<~EOS
+    set -e
     echo "cd /vagrant" >> /root/.bash_profile
     echo "sudo -i bash" >> /home/vagrant/.bash_profile
   EOS
