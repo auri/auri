@@ -28,30 +28,23 @@
 //
 //	db.QueryRow("select * from users where id=$1", userID)
 //
-// AcquireConn and ReleaseConn acquire and release a *pgx.Conn from the standard
-// database/sql.DB connection pool. This allows operations that must be
-// performed on a single connection without running in a transaction, and it
-// supports operations that use pgx specific functionality.
+// In Go 1.13 and above (*sql.Conn) Raw() can be used to get a *pgx.Conn from the standard
+// database/sql.DB connection pool. This allows operations that use pgx specific functionality.
 //
-//	conn, err := stdlib.AcquireConn(db)
+//	// Given db is a *sql.DB
+//	conn, err := db.Conn(context.Background())
 //	if err != nil {
-//		return err
+//		// handle error from acquiring connection from DB pool
 //	}
-//	defer stdlib.ReleaseConn(db, conn)
 //
-//	// do stuff with pgx.Conn
-//
-// It also can be used to enable a fast path for pgx while preserving
-// compatibility with other drivers and database.
-//
-//	conn, err := stdlib.AcquireConn(db)
-//	if err == nil {
-//		// fast path with pgx
-//		// ...
-//		// release conn when done
-//		stdlib.ReleaseConn(db, conn)
-//	} else {
-//		// normal path for other drivers and databases
+//	err = conn.Raw(func(driverConn interface{}) error {
+//		conn := driverConn.(*stdlib.Conn).Conn() // conn is a *pgx.Conn
+//		// Do pgx specific stuff with conn
+//		conn.CopyFrom(...)
+//		return nil
+//	})
+//	if err != nil {
+//		// handle error that occurred while using *pgx.Conn
 //	}
 package stdlib
 
@@ -59,15 +52,15 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"io"
 	"math"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	errors "golang.org/x/xerrors"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgtype"
@@ -113,6 +106,59 @@ var (
 	fakeTxMutex sync.Mutex
 	fakeTxConns map[*pgx.Conn]*sql.Tx
 )
+
+// OptionOpenDB options for configuring the driver when opening a new db pool.
+type OptionOpenDB func(*connector)
+
+// OptionAfterConnect provide a callback for after connect.
+func OptionAfterConnect(ac func(context.Context, *pgx.Conn) error) OptionOpenDB {
+	return func(dc *connector) {
+		dc.AfterConnect = ac
+	}
+}
+
+func OpenDB(config pgx.ConnConfig, opts ...OptionOpenDB) *sql.DB {
+	c := connector{
+		ConnConfig:   config,
+		AfterConnect: func(context.Context, *pgx.Conn) error { return nil }, // noop after connect by default
+		driver:       pgxDriver,
+	}
+
+	for _, opt := range opts {
+		opt(&c)
+	}
+
+	return sql.OpenDB(c)
+}
+
+type connector struct {
+	pgx.ConnConfig
+	AfterConnect func(context.Context, *pgx.Conn) error // function to call on every new connection
+	driver       *Driver
+}
+
+// Connect implement driver.Connector interface
+func (c connector) Connect(ctx context.Context) (driver.Conn, error) {
+	var (
+		err  error
+		conn *pgx.Conn
+	)
+
+	if conn, err = pgx.ConnectConfig(ctx, &c.ConnConfig); err != nil {
+		return nil, err
+	}
+
+	if err = c.AfterConnect(ctx, conn); err != nil {
+		return nil, err
+	}
+
+	return &Conn{conn: conn, driver: c.driver, connConfig: c.ConnConfig}, nil
+}
+
+// Driver implement driver.Connector interface
+func (c connector) Driver() driver.Driver {
+	return c.driver
+}
 
 // GetDefaultDriver returns the driver initialized in the init function
 // and used when the pgx driver is registered.
@@ -204,6 +250,11 @@ type Conn struct {
 	connConfig pgx.ConnConfig
 }
 
+// Conn returns the underlying *pgx.Conn
+func (c *Conn) Conn() *pgx.Conn {
+	return c.conn
+}
+
 func (c *Conn) Prepare(query string) (driver.Stmt, error) {
 	return c.PrepareContext(context.Background(), query)
 }
@@ -225,7 +276,9 @@ func (c *Conn) PrepareContext(ctx context.Context, query string) (driver.Stmt, e
 }
 
 func (c *Conn) Close() error {
-	return c.conn.Close(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return c.conn.Close(ctx)
 }
 
 func (c *Conn) Begin() (driver.Tx, error) {
@@ -254,7 +307,7 @@ func (c *Conn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, e
 	case sql.LevelSerializable:
 		pgxOpts.IsoLevel = pgx.Serializable
 	default:
-		return nil, errors.Errorf("unsupported isolation: %v", opts.Isolation)
+		return nil, fmt.Errorf("unsupported isolation: %v", opts.Isolation)
 	}
 
 	if opts.ReadOnly {
@@ -266,7 +319,7 @@ func (c *Conn) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, e
 		return nil, err
 	}
 
-	return wrapTx{tx: tx}, nil
+	return wrapTx{ctx: ctx, tx: tx}, nil
 }
 
 func (c *Conn) ExecContext(ctx context.Context, query string, argsV []driver.NamedValue) (driver.Result, error) {
@@ -316,7 +369,20 @@ func (c *Conn) Ping(ctx context.Context) error {
 		return driver.ErrBadConn
 	}
 
-	return c.conn.Ping(ctx)
+	err := c.conn.Ping(ctx)
+	if err != nil {
+		// A Ping failure implies some sort of fatal state. The connection is almost certainly already closed by the
+		// failure, but manually close it just to be sure.
+		c.Close()
+		return driver.ErrBadConn
+	}
+
+	return nil
+}
+
+func (c *Conn) CheckNamedValue(*driver.NamedValue) error {
+	// Underlying pgx supports sql.Scanner and driver.Valuer interfaces natively. So everything can be passed through directly.
+	return nil
 }
 
 type Stmt struct {
@@ -325,7 +391,9 @@ type Stmt struct {
 }
 
 func (s *Stmt) Close() error {
-	return s.conn.conn.Deallocate(context.Background(), s.sd.Name)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	return s.conn.conn.Deallocate(ctx, s.sd.Name)
 }
 
 func (s *Stmt) NumInput() int {
@@ -348,30 +416,37 @@ func (s *Stmt) QueryContext(ctx context.Context, argsV []driver.NamedValue) (dri
 	return s.conn.QueryContext(ctx, s.sd.Name, argsV)
 }
 
+type rowValueFunc func(src []byte) (driver.Value, error)
+
 type Rows struct {
 	conn         *Conn
 	rows         pgx.Rows
-	values       []interface{}
+	valueFuncs   []rowValueFunc
 	skipNext     bool
 	skipNextMore bool
+
+	columnNames []string
 }
 
 func (r *Rows) Columns() []string {
-	fieldDescriptions := r.rows.FieldDescriptions()
-	names := make([]string, 0, len(fieldDescriptions))
-	for _, fd := range fieldDescriptions {
-		names = append(names, string(fd.Name))
+	if r.columnNames == nil {
+		fields := r.rows.FieldDescriptions()
+		r.columnNames = make([]string, len(fields))
+		for i, fd := range fields {
+			r.columnNames[i] = string(fd.Name)
+		}
 	}
-	return names
+
+	return r.columnNames
 }
 
-// ColumnTypeDatabaseTypeName return the database system type name.
+// ColumnTypeDatabaseTypeName returns the database system type name. If the name is unknown the OID is returned.
 func (r *Rows) ColumnTypeDatabaseTypeName(index int) string {
 	if dt, ok := r.conn.conn.ConnInfo().DataTypeForOID(r.rows.FieldDescriptions()[index].DataTypeOID); ok {
 		return strings.ToUpper(dt.Name)
 	}
 
-	return ""
+	return strconv.FormatInt(int64(r.rows.FieldDescriptions()[index].DataTypeOID), 10)
 }
 
 const varHeaderSize = 4
@@ -423,8 +498,6 @@ func (r *Rows) ColumnTypeScanType(index int) reflect.Type {
 		return reflect.TypeOf(int32(0))
 	case pgtype.Int2OID:
 		return reflect.TypeOf(int16(0))
-	case pgtype.VarcharOID, pgtype.BPCharArrayOID, pgtype.TextOID:
-		return reflect.TypeOf("")
 	case pgtype.BoolOID:
 		return reflect.TypeOf(false)
 	case pgtype.NumericOID:
@@ -434,52 +507,163 @@ func (r *Rows) ColumnTypeScanType(index int) reflect.Type {
 	case pgtype.ByteaOID:
 		return reflect.TypeOf([]byte(nil))
 	default:
-		return reflect.TypeOf(new(interface{})).Elem()
+		return reflect.TypeOf("")
 	}
 }
 
 func (r *Rows) Close() error {
 	r.rows.Close()
-	return nil
+	return r.rows.Err()
 }
 
 func (r *Rows) Next(dest []driver.Value) error {
-	if r.values == nil {
-		r.values = make([]interface{}, len(r.rows.FieldDescriptions()))
-		for i, fd := range r.rows.FieldDescriptions() {
+	ci := r.conn.conn.ConnInfo()
+	fieldDescriptions := r.rows.FieldDescriptions()
+
+	if r.valueFuncs == nil {
+		r.valueFuncs = make([]rowValueFunc, len(fieldDescriptions))
+
+		for i, fd := range fieldDescriptions {
+			dataTypeOID := fd.DataTypeOID
+			format := fd.Format
+
 			switch fd.DataTypeOID {
 			case pgtype.BoolOID:
-				r.values[i] = &pgtype.Bool{}
+				var d bool
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return d, err
+				}
 			case pgtype.ByteaOID:
-				r.values[i] = &pgtype.Bytea{}
+				var d []byte
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return d, err
+				}
 			case pgtype.CIDOID:
-				r.values[i] = &pgtype.CID{}
+				var d pgtype.CID
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.DateOID:
-				r.values[i] = &pgtype.Date{}
+				var d pgtype.Date
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.Float4OID:
-				r.values[i] = &pgtype.Float4{}
+				var d float32
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return float64(d), err
+				}
 			case pgtype.Float8OID:
-				r.values[i] = &pgtype.Float8{}
+				var d float64
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return d, err
+				}
 			case pgtype.Int2OID:
-				r.values[i] = &pgtype.Int2{}
+				var d int16
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return int64(d), err
+				}
 			case pgtype.Int4OID:
-				r.values[i] = &pgtype.Int4{}
+				var d int32
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return int64(d), err
+				}
 			case pgtype.Int8OID:
-				r.values[i] = &pgtype.Int8{}
+				var d int64
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return d, err
+				}
 			case pgtype.JSONOID:
-				r.values[i] = &pgtype.JSON{}
+				var d pgtype.JSON
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.JSONBOID:
-				r.values[i] = &pgtype.JSONB{}
+				var d pgtype.JSONB
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.OIDOID:
-				r.values[i] = &pgtype.OIDValue{}
+				var d pgtype.OIDValue
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.TimestampOID:
-				r.values[i] = &pgtype.Timestamp{}
+				var d pgtype.Timestamp
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.TimestamptzOID:
-				r.values[i] = &pgtype.Timestamptz{}
+				var d pgtype.Timestamptz
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			case pgtype.XIDOID:
-				r.values[i] = &pgtype.XID{}
+				var d pgtype.XID
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					if err != nil {
+						return nil, err
+					}
+					return d.Value()
+				}
 			default:
-				r.values[i] = &pgtype.GenericText{}
+				var d string
+				scanPlan := ci.PlanScan(dataTypeOID, format, &d)
+				r.valueFuncs[i] = func(src []byte) (driver.Value, error) {
+					err := scanPlan.Scan(ci, dataTypeOID, format, src, &d)
+					return d, err
+				}
 			}
 		}
 	}
@@ -500,15 +684,15 @@ func (r *Rows) Next(dest []driver.Value) error {
 		}
 	}
 
-	err := r.rows.Scan(r.values...)
-	if err != nil {
-		return err
-	}
-
-	for i, v := range r.values {
-		dest[i], err = v.(driver.Valuer).Value()
-		if err != nil {
-			return err
+	for i, rv := range r.rows.RawValues() {
+		if rv != nil {
+			var err error
+			dest[i], err = r.valueFuncs[i](rv)
+			if err != nil {
+				return fmt.Errorf("convert field %d failed: %v", i, err)
+			}
+		} else {
+			dest[i] = nil
 		}
 	}
 
@@ -539,11 +723,14 @@ func namedValueToInterface(argsV []driver.NamedValue) []interface{} {
 	return args
 }
 
-type wrapTx struct{ tx pgx.Tx }
+type wrapTx struct {
+	ctx context.Context
+	tx  pgx.Tx
+}
 
-func (wtx wrapTx) Commit() error { return wtx.tx.Commit(context.Background()) }
+func (wtx wrapTx) Commit() error { return wtx.tx.Commit(wtx.ctx) }
 
-func (wtx wrapTx) Rollback() error { return wtx.tx.Rollback(context.Background()) }
+func (wtx wrapTx) Rollback() error { return wtx.tx.Rollback(wtx.ctx) }
 
 type fakeTx struct{}
 
@@ -551,6 +738,9 @@ func (fakeTx) Commit() error { return nil }
 
 func (fakeTx) Rollback() error { return nil }
 
+// AcquireConn acquires a *pgx.Conn from database/sql connection pool. It must be released with ReleaseConn.
+//
+// In Go 1.13 this functionality has been incorporated into the standard library in the db.Conn.Raw() method.
 func AcquireConn(db *sql.DB) (*pgx.Conn, error) {
 	var conn *pgx.Conn
 	ctx := context.WithValue(context.Background(), ctxKeyFakeTx, &conn)
@@ -570,6 +760,7 @@ func AcquireConn(db *sql.DB) (*pgx.Conn, error) {
 	return conn, nil
 }
 
+// ReleaseConn releases a *pgx.Conn acquired with AcquireConn.
 func ReleaseConn(db *sql.DB, conn *pgx.Conn) error {
 	var tx *sql.Tx
 	var ok bool
@@ -587,7 +778,7 @@ func ReleaseConn(db *sql.DB, conn *pgx.Conn) error {
 		fakeTxMutex.Unlock()
 	} else {
 		fakeTxMutex.Unlock()
-		return errors.Errorf("can't release conn that is not acquired")
+		return fmt.Errorf("can't release conn that is not acquired")
 	}
 
 	return tx.Rollback()

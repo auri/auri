@@ -3,16 +3,18 @@ package plush
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/gobuffalo/plush/v4/token"
+
 	"html/template"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/helpers/hctx"
 	"github.com/gobuffalo/plush/v4/ast"
 )
-
-// var ErrUnknownIdentifier = fmt.Errorf("unknown identifier")
 
 type ErrUnknownIdentifier struct {
 	ID  string
@@ -30,16 +32,19 @@ type compiler struct {
 	ctx     hctx.Context
 	program *ast.Program
 	curStmt ast.Statement
+	inCheck bool
 }
 
 func (c *compiler) compile() (string, error) {
 	bb := &bytes.Buffer{}
+
 	for _, stmt := range c.program.Statements {
 		var res interface{}
 		var err error
 		switch node := stmt.(type) {
 		case *ast.ReturnStatement:
 			res, err = c.evalReturnStatement(node)
+
 		case *ast.ExpressionStatement:
 			if h, ok := node.Expression.(*ast.HTMLLiteral); ok {
 				res = template.HTML(h.Value)
@@ -92,6 +97,10 @@ func (c *compiler) write(bb *bytes.Buffer, i interface{}) {
 		for _, ii := range t {
 			c.write(bb, ii)
 		}
+	case returnObject:
+		for _, ii := range t.Value {
+			c.write(bb, ii)
+		}
 	}
 }
 
@@ -129,6 +138,10 @@ func (c *compiler) evalExpression(node ast.Expression) (interface{}, error) {
 		return c.evalFunctionLiteral(s)
 	case *ast.AssignExpression:
 		return c.evalAssignExpression(s)
+	case *ast.ContinueExpression:
+		return continueObject{}, nil
+	case *ast.BreakExpression:
+		return breakObject{}, nil
 	case nil:
 		return nil, nil
 	}
@@ -187,7 +200,6 @@ func (c *compiler) evalPrefixExpression(node *ast.PrefixExpression) (interface{}
 }
 
 func (c *compiler) evalIfExpression(node *ast.IfExpression) (interface{}, error) {
-	// fmt.Println("evalIfExpression")
 	con, err := c.evalExpression(node.Condition)
 	if err != nil {
 		if _, ok := err.(*ErrUnknownIdentifier); !ok {
@@ -203,7 +215,6 @@ func (c *compiler) evalIfExpression(node *ast.IfExpression) (interface{}, error)
 }
 
 func (c *compiler) evalElseAndElseIfExpressions(node *ast.IfExpression) (interface{}, error) {
-	// fmt.Println("evalElseIfExpression")
 	var r interface{}
 	for _, eiNode := range node.ElseIf {
 		eiCon, err := c.evalExpression(eiNode.Condition)
@@ -221,14 +232,16 @@ func (c *compiler) evalElseAndElseIfExpressions(node *ast.IfExpression) (interfa
 	if node.ElseBlock != nil {
 		return c.evalBlockStatement(node.ElseBlock)
 	}
-
 	return r, nil
 }
 
 func (c *compiler) isTruthy(i interface{}) bool {
+
 	if i == nil {
+
 		return false
 	}
+
 	switch t := i.(type) {
 	case bool:
 		return t
@@ -236,34 +249,126 @@ func (c *compiler) isTruthy(i interface{}) bool {
 		return t != ""
 	case template.HTML:
 		return t != ""
-	}
 
-	return true
+	default:
+
+		if reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil() {
+
+			return false
+		}
+
+		return true
+
+	}
 }
 
 func (c *compiler) evalIndexExpression(node *ast.IndexExpression) (interface{}, error) {
+
 	index, err := c.evalExpression(node.Index)
 	if err != nil {
 		return nil, err
 	}
+
 	left, err := c.evalExpression(node.Left)
 	if err != nil {
 		return nil, err
 	}
+
+	var value interface{}
+
+	if node.Value != nil {
+
+		value, err = c.evalExpression(node.Value)
+		if err != nil {
+
+			return nil, err
+		}
+
+		return nil, c.evalUpdateIndex(left, index, value)
+	}
+
+	return c.evalAccessIndex(left, index, node)
+}
+
+func (c *compiler) evalUpdateIndex(left, index, value interface{}) error {
+
+	var err error
+	rv := reflect.ValueOf(left)
+	switch rv.Kind() {
+	case reflect.Map:
+
+		rv.SetMapIndex(reflect.ValueOf(index), reflect.ValueOf(value))
+
+	case reflect.Array, reflect.Slice:
+		if i, ok := index.(int); ok {
+
+			if rv.Len()-1 < i {
+
+				err = fmt.Errorf("array index out of bounds, got index %d, while array size is %v", i, rv.Len())
+
+			} else {
+
+				rv.Index(i).Set(reflect.ValueOf(value))
+
+			}
+
+		} else {
+
+			err = fmt.Errorf("can't access Slice/Array with a non int Index (%v)", index)
+		}
+
+	default:
+		err = fmt.Errorf("could not index %T with %T", left, index)
+
+	}
+
+	return err
+}
+
+func (c *compiler) evalAccessIndex(left, index interface{}, node *ast.IndexExpression) (interface{}, error) {
+
+	var returnValue interface{}
+	var err error
 	rv := reflect.ValueOf(left)
 	switch rv.Kind() {
 	case reflect.Map:
 		val := rv.MapIndex(reflect.ValueOf(index))
+
 		if !val.IsValid() {
 			return nil, nil
 		}
-		return val.Interface(), nil
+
+		if node.Callee != nil {
+
+			returnValue, err = c.evalIndexCallee(val, node)
+
+		} else {
+
+			returnValue = val.Interface()
+		}
+
 	case reflect.Array, reflect.Slice:
 		if i, ok := index.(int); ok {
-			return rv.Index(i).Interface(), nil
+
+			if node.Callee != nil {
+
+				returnValue, err = c.evalIndexCallee(rv.Index(i), node)
+
+			} else {
+				returnValue = rv.Index(i).Interface()
+			}
+
+		} else {
+
+			err = fmt.Errorf("can't access Slice/Array with a non int Index (%v)", index)
 		}
+
+	default:
+		err = fmt.Errorf("could not index %T with %T", left, index)
+
 	}
-	return nil, fmt.Errorf("could not index %T with %T", left, index)
+
+	return returnValue, err
 }
 
 func (c *compiler) evalHashLiteral(node *ast.HashLiteral) (interface{}, error) {
@@ -279,7 +384,6 @@ func (c *compiler) evalHashLiteral(node *ast.HashLiteral) (interface{}, error) {
 }
 
 func (c *compiler) evalLetStatement(node *ast.LetStatement) (interface{}, error) {
-	// fmt.Println("evalLetStatement")
 	v, err := c.evalExpression(node.Value)
 	if err != nil {
 		return nil, err
@@ -301,9 +405,11 @@ func (c *compiler) evalIdentifier(node *ast.Identifier) (interface{}, error) {
 		if rv.Kind() == reflect.Ptr {
 			rv = rv.Elem()
 		}
+
 		if rv.Kind() != reflect.Struct {
 			return nil, fmt.Errorf("'%s' does not have a field or method named '%s' (%s)", node.Callee.String(), node.Value, node)
 		}
+
 		f := rv.FieldByName(node.Value)
 		if !f.IsValid() {
 			m := rv.MethodByName(node.Value)
@@ -311,6 +417,11 @@ func (c *compiler) evalIdentifier(node *ast.Identifier) (interface{}, error) {
 				return nil, fmt.Errorf("'%s' does not have a field or method named '%s' (%s)", node.Callee.String(), node.Value, node)
 			}
 			return m.Interface(), nil
+		}
+
+		if !f.CanInterface() {
+
+			return nil, fmt.Errorf("'%s'cannot return value obtained from unexported field or method '%s' (%s)", node.Callee.String(), node.Value, node)
 		}
 		return f.Interface(), nil
 	}
@@ -326,7 +437,7 @@ func (c *compiler) evalIdentifier(node *ast.Identifier) (interface{}, error) {
 }
 
 func (c *compiler) evalInfixExpression(node *ast.InfixExpression) (interface{}, error) {
-	// fmt.Println("evalInfixExpression")
+
 	lres, err := c.evalExpression(node.Left)
 	if err != nil {
 		return nil, err
@@ -362,6 +473,7 @@ func (c *compiler) evalInfixExpression(node *ast.InfixExpression) (interface{}, 
 			return c.floatsOperator(t, r, node.Operator)
 		}
 	case bool:
+
 		return c.boolsOperator(lres, rres, node.Operator)
 	case nil:
 		return nil, nil
@@ -370,12 +482,22 @@ func (c *compiler) evalInfixExpression(node *ast.InfixExpression) (interface{}, 
 }
 
 func (c *compiler) boolsOperator(l interface{}, r interface{}, op string) (interface{}, error) {
+
 	lt := c.isTruthy(l)
 	rt := c.isTruthy(r)
-	if op == "||" {
+	switch op {
+	case "&&", "+":
+		return lt && rt, nil
+	case "||":
 		return lt || rt, nil
+	case "!=":
+		return lt != rt, nil
+	case "==":
+		return lt == rt, nil
+	default:
+		return nil, fmt.Errorf("unkown operator (%s) on %T and %T ", op, lt, rt)
 	}
-	return lt && rt, nil
+
 }
 
 func (c *compiler) intsOperator(l int, r int, op string) (interface{}, error) {
@@ -464,7 +586,6 @@ func (c *compiler) stringsOperator(l string, r interface{}, op string) (interfac
 }
 
 func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, error) {
-	// fmt.Println("evalCallExpression")
 	var rv reflect.Value
 	if node.Callee != nil {
 		c, err := c.evalExpression(node.Callee)
@@ -501,6 +622,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 		}
 		rv = reflect.ValueOf(f)
 	}
+
 	if rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
 	}
@@ -509,6 +631,9 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 	}
 
 	rt := rv.Type()
+	if rt.Kind() != reflect.Func {
+		return nil, fmt.Errorf("%+v (%T) is an invalid function", node.String(), rt)
+	}
 	rtNumIn := rt.NumIn()
 	isVariadic := rt.IsVariadic()
 	args := []reflect.Value{}
@@ -682,22 +807,57 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			if err != nil {
 				return nil, err
 			}
-			ret = append(ret, res)
+
+			breakLoop := false
+			switch val := res.(type) {
+			case continueObject:
+				res = val.Value
+			case breakObject:
+				breakLoop = true
+				res = val.Value
+			}
+
+			if res != nil {
+
+				ret = append(ret, res)
+			}
+
+			if breakLoop {
+				break
+			}
 		}
 	case reflect.Slice, reflect.Array:
+
 		for i := 0; i < riter.Len(); i++ {
 			v := riter.Index(i)
 			c.ctx.Set(node.KeyName, i)
 			c.ctx.Set(node.ValueName, v.Interface())
+
 			res, err := c.evalBlockStatement(node.Block)
 			if err != nil {
 				return nil, err
 			}
+			breakLoop := false
+			switch val := res.(type) {
+			case continueObject:
+				res = val.Value
+			case breakObject:
+				breakLoop = true
+				res = val.Value
+			}
+
 			if res != nil {
+
 				ret = append(ret, res)
 			}
+
+			if breakLoop {
+				break
+			}
 		}
+
 	default:
+
 		if iter == nil {
 			return nil, nil
 		}
@@ -711,8 +871,22 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 				if err != nil {
 					return nil, err
 				}
+				breakLoop := false
+				switch val := res.(type) {
+				case continueObject:
+					res = val.Value
+				case breakObject:
+					breakLoop = true
+					res = val.Value
+				}
+
 				if res != nil {
+
 					ret = append(ret, res)
+				}
+
+				if breakLoop {
+					break
 				}
 				ii = it.Next()
 				i++
@@ -725,28 +899,50 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 }
 
 func (c *compiler) evalBlockStatement(node *ast.BlockStatement) (interface{}, error) {
-	// fmt.Println("evalBlockStatement")
 	res := []interface{}{}
 	for _, s := range node.Statements {
+
 		i, err := c.evalStatement(s)
+
 		if err != nil {
 			return nil, err
 		}
-		if i != nil {
-			res = append(res, i)
+
+		val, exitBlock := i.(exitBlockStatment)
+		if !exitBlock {
+			if i != nil {
+				res = append(res, i)
+			}
+		} else {
+
+			var resValue interface{}
+			switch obj := val.(type) {
+			case continueObject:
+				obj = continueObject{Value: append(res, obj.Value...)}
+				resValue = obj
+			case breakObject:
+				obj = breakObject{Value: append(res, obj.Value...)}
+				resValue = obj
+			case returnObject:
+				res = append(res, i)
+				obj.Value = res
+				resValue = obj
+			}
+
+			return resValue, nil
 		}
 	}
+
 	return res, nil
 }
 
 func (c *compiler) evalStatement(node ast.Statement) (interface{}, error) {
 	c.curStmt = node
-	// fmt.Println("evalStatement")
 	switch t := node.(type) {
 	case *ast.ExpressionStatement:
 		s, err := c.evalExpression(t.Expression)
 		switch s.(type) {
-		case ast.Printable, template.HTML:
+		case exitBlockStatment, ast.Printable, template.HTML:
 			return s, err
 		}
 		return nil, err
@@ -759,11 +955,16 @@ func (c *compiler) evalStatement(node ast.Statement) (interface{}, error) {
 }
 
 func (c *compiler) evalReturnStatement(node *ast.ReturnStatement) (interface{}, error) {
-	// fmt.Println("evalReturnStatement")
 	res, err := c.evalExpression(node.ReturnValue)
 	if err != nil {
 		return nil, err
 	}
+	if node.Type == token.RETURN {
+		v := returnObject{}
+		v.Value = append(v.Value, res)
+		res = v
+	}
+
 	return res, nil
 }
 
@@ -777,4 +978,58 @@ func (c *compiler) evalArrayLiteral(node *ast.ArrayLiteral) (interface{}, error)
 		res = append(res, i)
 	}
 	return res, nil
+}
+
+func (c *compiler) evalIndexCallee(rv reflect.Value, node *ast.IndexExpression) (interface{}, error) {
+
+	octx := c.ctx.(*Context)
+	defer func() {
+		c.ctx = octx
+	}()
+
+	c.ctx = octx.New()
+	// must copy all data from original (it includes application defined helpers)
+	for k, v := range octx.data {
+		c.ctx.Set(k, v)
+	}
+
+	//The key here is needed to set the object in ctx for later evaluation
+	//For example, if this is a nested object person.Name[0]
+	//then we can set the value of Name[0] to person.Name
+	//As the evalIdent will look for that object by person.Name
+	//If key doesn't contain "." this means we got person[0].Name[0]
+	//If key does contain "." then indexed field that needs to be accessed will be set in Node.left and Node.Callee
+	key := node.Left.String()
+	if strings.Contains(key, ".") {
+
+		ggg := strings.Split(key, ".")
+		callee := node.Callee.String()
+		if !strings.Contains(callee, key) {
+
+			for {
+				if len(ggg) >= 2 {
+
+					ggg = ggg[1:]
+				} else {
+					key = ggg[0]
+					break
+				}
+				if strings.Contains(callee, strings.Join(ggg, ".")) {
+					key = strings.Join(ggg, ".")
+					break
+				}
+
+			}
+		}
+
+	}
+
+	c.ctx.Set(key, rv.Interface())
+
+	vvs, err := c.evalExpression(node.Callee)
+	if err != nil {
+		return nil, err
+	}
+
+	return vvs, nil
 }

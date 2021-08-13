@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	_ "github.com/gobuffalo/flect" //https://github.com/gobuffalo/buffalo/issues/2138
 )
 
 const helpInfo = `NAME:
@@ -31,14 +33,14 @@ COMMANDS:
   help              Show the help information
 
   when command is missing, auri is started as a daemon
-                 
-GLOBAL OPTIONS:  
+
+GLOBAL OPTIONS:
   --help            Show the help information
   --configdir DIR   Use DIR as configuration directory
-                 
-TASKS:           
+
+TASKS:
   task list         Show the available tasks
-  
+
 `
 
 // main is the starting point of this Buffalo application.

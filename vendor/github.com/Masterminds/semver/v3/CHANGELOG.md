@@ -1,5 +1,21 @@
 # Changelog
 
+## 3.1.1 (2020-11-23)
+
+### Fixed
+
+- #158: Fixed issue with generated regex operation order that could cause problem
+
+## 3.1.0 (2020-04-15)
+
+### Added
+
+- #131: Add support for serializing/deserializing SQL (thanks @ryancurrah)
+
+### Changed
+
+- #148: More accurate validation messages on constraints
+
 ## 3.0.3 (2019-12-13)
 
 ### Fixed

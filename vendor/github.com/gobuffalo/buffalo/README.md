@@ -1,20 +1,13 @@
-<p align="center"><img src="https://github.com/gobuffalo/buffalo/blob/master/logo.svg" width="360"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/gobuffalo/buffalo/master/logo.svg" width="360"></p>
 
 <p align="center">
-<a href="https://godoc.org/github.com/gobuffalo/buffalo"><img src="https://godoc.org/github.com/gobuffalo/buffalo?status.svg" alt="GoDoc" /></a>
+<a href="https://pkg.go.dev/github.com/gobuffalo/buffalo"><img src="https://pkg.go.dev/badge/github.com/gobuffalo/buffalo" alt="PkgGoDev"></a>
 <img src="https://github.com/gobuffalo/buffalo/workflows/Tests/badge.svg" alt="Tests Status" />
 <a href="https://goreportcard.com/report/github.com/gobuffalo/buffalo"><img src="https://goreportcard.com/badge/github.com/gobuffalo/buffalo" alt="Go Report Card" /></a>
 <a href="https://www.codetriage.com/gobuffalo/buffalo"><img src="https://www.codetriage.com/gobuffalo/buffalo/badges/users.svg" alt="Open Source Helpers" /></a>
 </p>
 
 # Buffalo
-
-
-### **As of December 1st, 2019 Buffalo, and all related packages, require Go Modules and the use of the `GOPATH` is no longer supported.**
-
-Please see this blog post for more information [https://blog.gobuffalo.io/the-road-to-1-0-requiring-modules-5672c6b015e5.](https://blog.gobuffalo.io/the-road-to-1-0-requiring-modules-5672c6b015e5).
-
----
 
 A Go web development eco-system, designed to make your project easier.
 
@@ -23,6 +16,18 @@ Buffalo helps you to generate a web project that already has everything from fro
 Buffalo **isn't just a framework**; it's a holistic web development environment and project structure that **lets developers get straight to the business** of, well, building their business.
 
 > I :heart: web dev in go again - Brian Ketelsen
+
+## ⚠️ Important
+
+Buffalo works only with Go 
+[modules](https://blog.golang.org/using-go-modules). `GOPATH` mode is likely to break most of the functionality of the Buffalo eco-system. Please see [this blog post](https://blog.gobuffalo.io/the-road-to-1-0-requiring-modules-5672c6b015e5) for more information.
+
+Also, the Buffalo team actively gives support to the last 2 versions of Go, which at the moment are:
+
+- 1.15.x
+- 1.16.x
+
+While Buffalo `may` work on older versions, we encourage you to upgrade to latest 2 versions of Go for a better development experience.
 
 ## Documentation
 

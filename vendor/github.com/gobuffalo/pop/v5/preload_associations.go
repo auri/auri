@@ -167,7 +167,7 @@ func (ami *AssociationMetaInfo) fkName() string {
 // preload is the query mode used to load associations from database
 // similar to the active record default approach on Rails.
 func preload(tx *Connection, model interface{}, fields ...string) error {
-	mmi := NewModelMetaInfo(&Model{Value: model})
+	mmi := NewModelMetaInfo(NewModel(model, tx.Context()))
 
 	preloadFields, err := mmi.preloadFields(fields...)
 	if err != nil {
@@ -271,8 +271,9 @@ func preloadHasMany(tx *Connection, asoc *AssociationMetaInfo, mmi *ModelMetaInf
 		modelAssociationField := mmi.mapper.FieldByName(mvalue, asoc.Name)
 		for i := 0; i < slice.Elem().Len(); i++ {
 			asocValue := slice.Elem().Index(i)
-			if mmi.mapper.FieldByName(mvalue, "ID").Interface() == mmi.mapper.FieldByName(asocValue, foreignField.Path).Interface() ||
-				reflect.DeepEqual(mmi.mapper.FieldByName(mvalue, "ID"), mmi.mapper.FieldByName(asocValue, foreignField.Path)) {
+			valueField := reflect.Indirect(mmi.mapper.FieldByName(asocValue, foreignField.Path))
+			if mmi.mapper.FieldByName(mvalue, "ID").Interface() == valueField.Interface() ||
+				reflect.DeepEqual(mmi.mapper.FieldByName(mvalue, "ID"), valueField) {
 
 				switch {
 				case modelAssociationField.Kind() == reflect.Slice || modelAssociationField.Kind() == reflect.Array:
@@ -355,7 +356,9 @@ func preloadBelongsTo(tx *Connection, asoc *AssociationMetaInfo, mmi *ModelMetaI
 
 	fkids := []interface{}{}
 	mmi.iterate(func(val reflect.Value) {
-		fkids = append(fkids, mmi.mapper.FieldByName(val, fi.Path).Interface())
+		if !isFieldNilPtr(val, fi) {
+			fkids = append(fkids, mmi.mapper.FieldByName(val, fi.Path).Interface())
+		}
 	})
 
 	if len(fkids) == 0 {
@@ -386,11 +389,15 @@ func preloadBelongsTo(tx *Connection, asoc *AssociationMetaInfo, mmi *ModelMetaI
 
 	// 3) iterate over every model and fill it with the assoc.
 	mmi.iterate(func(mvalue reflect.Value) {
+		if isFieldNilPtr(mvalue, fi) {
+			return
+		}
 		modelAssociationField := mmi.mapper.FieldByName(mvalue, asoc.Name)
 		for i := 0; i < slice.Elem().Len(); i++ {
 			asocValue := slice.Elem().Index(i)
-			if mmi.mapper.FieldByName(mvalue, fi.Path).Interface() == mmi.mapper.FieldByName(asocValue, "ID").Interface() ||
-				reflect.DeepEqual(mmi.mapper.FieldByName(mvalue, fi.Path), mmi.mapper.FieldByName(asocValue, "ID")) {
+			fkField := reflect.Indirect(mmi.mapper.FieldByName(mvalue, fi.Path))
+			if fkField.Interface() == mmi.mapper.FieldByName(asocValue, "ID").Interface() ||
+				reflect.DeepEqual(fkField, mmi.mapper.FieldByName(asocValue, "ID")) {
 
 				switch {
 				case modelAssociationField.Kind() == reflect.Slice || modelAssociationField.Kind() == reflect.Array:
@@ -431,71 +438,81 @@ func preloadManyToMany(tx *Connection, asoc *AssociationMetaInfo, mmi *ModelMeta
 		manyToManyTableName = strings.TrimSpace(manyToManyTableName[:strings.Index(manyToManyTableName, ":")])
 	}
 
-	if tx.TX != nil {
-		sql := fmt.Sprintf("SELECT %s, %s FROM %s WHERE %s in (?)", modelAssociationName, assocFkName, manyToManyTableName, modelAssociationName)
-		sql, args, _ := sqlx.In(sql, ids)
-		sql = tx.Dialect.TranslateSQL(sql)
-		log(logging.SQL, sql, args...)
-		rows, err := tx.TX.Queryx(sql, args...)
+	sql := fmt.Sprintf("SELECT %s, %s FROM %s WHERE %s in (?)", modelAssociationName, assocFkName, manyToManyTableName, modelAssociationName)
+	sql, args, _ := sqlx.In(sql, ids)
+	sql = tx.Dialect.TranslateSQL(sql)
+	log(logging.SQL, sql, args...)
+
+	cn, err := tx.Store.Transaction()
+	if err != nil {
+		return err
+	}
+
+	rows, err := cn.Queryx(sql, args...)
+	if err != nil {
+		return err
+	}
+
+	mapAssoc := map[string][]interface{}{}
+	fkids := []interface{}{}
+	for rows.Next() {
+		row, err := rows.SliceScan()
 		if err != nil {
 			return err
 		}
+		if len(row) > 0 {
+			if _, ok := row[0].([]uint8); ok { // -> it's UUID
+				row[0] = string(row[0].([]uint8))
+			}
+			if _, ok := row[1].([]uint8); ok { // -> it's UUID
+				row[1] = string(row[1].([]uint8))
+			}
+			key := fmt.Sprintf("%v", row[0])
+			mapAssoc[key] = append(mapAssoc[key], row[1])
+			fkids = append(fkids, row[1])
+		}
+	}
 
-		mapAssoc := map[string][]interface{}{}
-		fkids := []interface{}{}
-		for rows.Next() {
-			row, err := rows.SliceScan()
-			if err != nil {
+	q := tx.Q()
+	q.eager = false
+	q.eagerFields = []string{}
+
+	if strings.TrimSpace(asoc.Field.Tag.Get("order_by")) != "" {
+		q.Order(asoc.Field.Tag.Get("order_by"))
+	}
+
+	slice := asoc.toSlice()
+	q.Where("id in (?)", fkids).All(slice.Interface())
+
+	// 2.2) load all nested associations from this assoc.
+	if asocNestedFields, ok := mmi.nestedFields[asoc.Path]; ok {
+		for _, asocNestedField := range asocNestedFields {
+			if err := preload(tx, slice.Interface(), asocNestedField); err != nil {
 				return err
 			}
-			if len(row) > 0 {
-				if _, ok := row[0].([]uint8); ok { // -> it's UUID
-					row[0] = string(row[0].([]uint8))
-				}
-				if _, ok := row[1].([]uint8); ok { // -> it's UUID
-					row[1] = string(row[1].([]uint8))
-				}
-				key := fmt.Sprintf("%v", row[0])
-				mapAssoc[key] = append(mapAssoc[key], row[1])
-				fkids = append(fkids, row[1])
-			}
 		}
+	}
 
-		q := tx.Q()
-		q.eager = false
-		q.eagerFields = []string{}
-
-		if strings.TrimSpace(asoc.Field.Tag.Get("order_by")) != "" {
-			q.Order(asoc.Field.Tag.Get("order_by"))
-		}
-
-		slice := asoc.toSlice()
-		q.Where("id in (?)", fkids).All(slice.Interface())
-
-		// 2.2) load all nested associations from this assoc.
-		if asocNestedFields, ok := mmi.nestedFields[asoc.Path]; ok {
-			for _, asocNestedField := range asocNestedFields {
-				if err := preload(tx, slice.Interface(), asocNestedField); err != nil {
-					return err
-				}
-			}
-		}
-
-		// 3) iterate over every model and fill it with the assoc.
-		mmi.iterate(func(mvalue reflect.Value) {
-			id := mmi.mapper.FieldByName(mvalue, "ID").Interface()
-			if assocFkIds, ok := mapAssoc[fmt.Sprintf("%v", id)]; ok {
-				modelAssociationField := mmi.mapper.FieldByName(mvalue, asoc.Name)
-				for i := 0; i < slice.Elem().Len(); i++ {
-					asocValue := slice.Elem().Index(i)
-					for _, fkid := range assocFkIds {
-						if fmt.Sprintf("%v", fkid) == fmt.Sprintf("%v", mmi.mapper.FieldByName(asocValue, "ID").Interface()) {
-							modelAssociationField.Set(reflect.Append(modelAssociationField, asocValue))
-						}
+	// 3) iterate over every model and fill it with the assoc.
+	mmi.iterate(func(mvalue reflect.Value) {
+		id := mmi.mapper.FieldByName(mvalue, "ID").Interface()
+		if assocFkIds, ok := mapAssoc[fmt.Sprintf("%v", id)]; ok {
+			modelAssociationField := mmi.mapper.FieldByName(mvalue, asoc.Name)
+			for i := 0; i < slice.Elem().Len(); i++ {
+				asocValue := slice.Elem().Index(i)
+				for _, fkid := range assocFkIds {
+					if fmt.Sprintf("%v", fkid) == fmt.Sprintf("%v", mmi.mapper.FieldByName(asocValue, "ID").Interface()) {
+						modelAssociationField.Set(reflect.Append(modelAssociationField, asocValue))
 					}
 				}
 			}
-		})
-	}
+		}
+	})
+
 	return nil
+}
+
+func isFieldNilPtr(val reflect.Value, fi *reflectx.FieldInfo) bool {
+	fieldValue := reflectx.FieldByIndexesReadOnly(val, fi.Index)
+	return fieldValue.Kind() == reflect.Ptr && fieldValue.IsNil()
 }
