@@ -23,11 +23,21 @@ var auriConfigFile = "config.env"
 
 // prodBuild is set to yes during the build process of production builds
 var prodBuild = "no"
+
+// version is the version of application and is set during the build process
+var version = "unknown"
+
+// instance contains the initialized configuration
 var instance interface{}
 
 // IsProdBuild returns true if this is a prod build
 func IsProdBuild() bool {
 	return prodBuild == "yes"
+}
+
+// GetVersion returns the version of application
+func GetVersion() string {
+	return version
 }
 
 // GetInstance provides the current validated configuration
