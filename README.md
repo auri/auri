@@ -104,6 +104,65 @@ $ ipa user-mod auri --setattr krbPasswordExpiration=del --delattr krbPasswordExp
 $ ipa role-add-member 'M2M Auri account manager' --users=auri
 ```
 
+**Setup a forward proxy and ensure `/admin` URL path is protected.**
+Following example shows a possible configuration with apache web server and accounts from IPA admin group:
+```
+# httpd.conf or similar part of apache configuration
+
+# SSL configuration
+Listen *:443
+SSLCertificateFile /etc/pki/httpd/certificate.crt
+SSLCertificateKeyFile /etc/pki/httpd/certificate.key
+SSLCertificateChainFile /etc/pki/httpd/chain.crt
+
+# https://bettercrypto.org/#_apache
+SSLProtocol All -SSLv2 -SSLv3
+SSLHonorCipherOrder On
+SSLCompression off
+Header always set Strict-Transport-Security "max-age=15768000"
+SSLCipherSuite 'EDH+CAMELLIA:EDH+aRSA:EECDH+aRSA+AESGCM:EECDH+aRSA+SHA256:EECDH:+CAMELLIA128:+AES128:+SSLv3:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!IDEA:!ECDSA:kEDH:CAMELLIA128-SHA:AES128-SHA'
+
+# global LDAP settings
+LDAPTrustedGlobalCert CA_BASE64 /etc/ssl/certs/ca-bundle.crt
+
+<VirtualHost *:80>
+  Redirect permanent / https://auri.example.com/
+</VirtualHost>
+
+<VirtualHost *:443>
+ServerName auri.example.com
+SSLEngine on
+
+ProxyPassReverseCookiePath / /
+ProxyRequests off
+ProxyPreserveHost on
+ProxyPass "/" http://localhost:3000/
+ProxyPassReverse "/" http://localhost:3000/
+
+<Location /admin>
+  AllowOverride none
+  AuthType Basic
+  AuthName "Admin area"
+  AuthBasicProvider ldap
+  AuthLDAPURL "ldaps://ipa1.example.com ipa2.example.com:636/cn=users,cn=accounts,dc=example,dc=com"
+  AuthLDAPBindDN "uid=auri,cn=users,cn=accounts,dc=example,dc=com"
+  AuthLDAPBindPassword "PASSWORD"
+  Require ldap-group cn=admins,cn=groups,cn=accounts,dc=example,dc=com
+</Location>
+
+</VirtualHost>
+```
+
+## URLs
+
+Auri binary provides several URL paths (routes) for different parts of it's functionality:
+- `/accountrequest` (default) - request of new accounts
+- `/emailvalidation` - used for validation of email addresses
+- `/credentialreset` - Reset of authentication credentials
+- `/admin` - Admin interface for confirmation/rejection of account requests
+
+**Please keep in mind: `/admin` isn't protected, you have to setup a reverse proxy with some kind of protection!**
+
 ## Tasks
 
 Auri binary provides several maintenance tasks, see `auri --help` and `auri task list` for more details.
