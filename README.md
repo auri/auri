@@ -35,7 +35,7 @@ Auri implements [self service account creation and reset of credentials](https:/
 
 ## Installation and configuration
 
-Install and configure PostgreSQL (see [this](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7) HowTo). Create a database and according user. 
+Install and configure PostgreSQL (see [this](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7) HowTo). Create a database and according user.
 
 Use the [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/auri/releases/) for auri installation:
 
@@ -70,13 +70,47 @@ $ cat > /etc/cron.d/auri <<EOF
 EOF
 ```
 
+Create a user in IPA for auri and add it's credentials to the `config.env`:
+```bash
+# following commands should be executed on the FreeIPA system
+# you have to adapt your LDAP tree for your setup, we use 'dc=example,dc=com' here
+$ kinit admin
+...
+# create a new permission to add new users to the default group
+$ ipa permission-add 'Auri - Add Users to default user group'\
+      --right=write --subtree='cn=groups,cn=accounts,dc=example,dc=com'\
+      --target='cn=#{users_group},cn=groups,cn=accounts,dc=example,dc=com'\
+      --attrs=member
+
+# create a new privelege for auri
+$ ipa privilege-add 'Auri account management' --desc 'Account creation and credential reset via Auri'
+$ ipa privilege-add-permission 'Auri account management' --permissions='System: Add Users'
+$ ipa privilege-add-permission 'Auri account management' --permissions='System: Change User password'
+$ ipa privilege-add-permission 'Auri account management' --permissions='System: Manage User SSH Public Keys'
+$ ipa privilege-add-permission 'Auri account management' --permissions='System: Read UPG Definition'
+$ ipa privilege-add-permission 'Auri account management' --permissions='Auri - Add Users to default user group'
+
+# create a new role for auri
+$ ipa role-add 'M2M Auri account manager' --desc 'Account creation and credential reset via Auri'
+$ ipa role-add-privilege 'M2M Auri account manager' --privileges='Auri account management'
+
+# create a new auri user
+$ ipa user-add auri --password \
+      --shell=/sbin/nologin --home=/nonexistent \
+      --first=auri --last=auri
+# avoid password change flag and unlock auri account
+$ ipa user-mod auri --setattr krbPasswordExpiration=del --delattr krbPasswordExpiration=del
+# assign auri role to the user
+$ ipa role-add-member 'M2M Auri account manager' --users=auri
+```
+
 ## Tasks
 
 Auri binary provides several maintenance tasks, see `auri --help` and `auri task list` for more details.
 
 ## Development environment
 
-This repository contains a `Vagrantfile`, 
+This repository contains a `Vagrantfile`,
 so you can start the development environment via vagrant in a virtual machine like this:
 
 1. Install [vagrant](https://www.vagrantup.com/downloads)
@@ -84,7 +118,7 @@ so you can start the development environment via vagrant in a virtual machine li
 1. Clone the repository
 1. Invoke `vagrant up` and grab a coffee
 
-Invoke `vagrant ssh` to get to the VM, invoke `buffalo dev` in the VM in order to start Auri in the development mode. 
+Invoke `vagrant ssh` to get to the VM, invoke `buffalo dev` in the VM in order to start Auri in the development mode.
 You can set the configuration parameters in the development mode via creating the `.env` file in the top-level.
 See [the configuration file](rpm/assets/config.env) for possible options.
 
