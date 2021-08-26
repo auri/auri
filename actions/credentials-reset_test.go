@@ -2,9 +2,12 @@ package actions
 
 import (
 	"auri/helpers"
+	"auri/ipaclient"
 	"auri/mail"
 	"auri/models"
 	"time"
+
+	"github.com/tehwalris/go-freeipa/freeipa"
 )
 
 func (as *ActionSuite) Test_CredentialResetRequestPage() {
@@ -168,6 +171,27 @@ func (as *ActionSuite) Test_CredentialResetProcessingAddSSHKey() {
 	res := as.JSON("/credentialreset/process/" + reset.Token + "/create").Post(&request)
 	as.Equal(200, res.Code, res.Body.String())
 	as.Error(as.DB.Eager().Find(&reset, "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"))
+}
+
+func (as *ActionSuite) Test_CredentialResetProcessingAddPuttySSHKey() {
+	as.LoadFixture("resetToken-valid-user-present-in-IPA")
+	reset := models.Reset{}
+	request := models.Request{PublicKey: `---- BEGIN SSH2 PUBLIC KEY ----
+Comment: "ed25519-key-20210826"
+AAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLu
+o4uJ
+---- END SSH2 PUBLIC KEY ----`}
+	as.NoError(as.DB.Eager().Find(&reset, "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"))
+	res := as.JSON("/credentialreset/process/" + reset.Token + "/create").Post(&request)
+	as.Equal(200, res.Code, res.Body.String())
+	as.Error(as.DB.Eager().Find(&reset, "f19d5ab3-e913-4c08-b4dd-627e26ccbc0b"))
+
+	as.Equal(
+		&freeipa.User{
+			UID:          "user-present-in-IPA",
+			Ipasshpubkey: &[]string{"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLuo4uJ ed25519-key-20210826"},
+		},
+		ipaclient.UserModifiedFromMock())
 }
 
 func (as *ActionSuite) Test_CredentialResetProcessingAddPassword() {
