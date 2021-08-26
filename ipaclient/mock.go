@@ -14,7 +14,8 @@ func sPointer(s string) *string {
 
 // ipaMock is used as a mock client for IPA
 type ipaMock struct {
-	userAdded *freeipa.User
+	userAdded    *freeipa.User
+	userModified *freeipa.User
 }
 
 // UserAdd is mocking freeipa.Client.UserAdd()
@@ -90,8 +91,12 @@ func (moc *ipaMock) UserFind(_ string, _ *freeipa.UserFindArgs, optionalArgs *fr
 }
 
 // UserMod is mocking freeipa.Client.UserMod()
-func (moc *ipaMock) UserMod(_ *freeipa.UserModArgs, _ *freeipa.UserModOptionalArgs) (*freeipa.UserModResult, error) {
-	return &freeipa.UserModResult{}, nil
+func (moc *ipaMock) UserMod(_ *freeipa.UserModArgs, oargs *freeipa.UserModOptionalArgs) (*freeipa.UserModResult, error) {
+	moc.userModified = &freeipa.User{UID: *oargs.UID,
+		Userpassword: oargs.Userpassword,
+		Ipasshpubkey: oargs.Ipasshpubkey}
+
+	return &freeipa.UserModResult{Result: *moc.userModified}, nil
 }
 
 // Passwd is mocking freeipa.Client.Passwd()
@@ -150,4 +155,18 @@ func UserAddedFromMock() *freeipa.User {
 	}
 
 	return moc.userAdded
+}
+
+// UserModifiedFromMock returns the last modified user from mock
+func UserModifiedFromMock() *freeipa.User {
+	ipaclient, err := GetClient()
+	if err != nil {
+		panic(err)
+	}
+	moc, ok := ipaclient.(*ipaMock)
+	if ok != true {
+		panic("IPAClient is expected to be ipaMock")
+	}
+
+	return moc.userModified
 }

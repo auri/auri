@@ -4,6 +4,7 @@ import (
 	"auri/actions/apperror"
 	"auri/config"
 	"auri/helpers"
+	"auri/helpers/ssh"
 	"auri/ipaclient"
 	"auri/logger"
 	"auri/mail"
@@ -173,6 +174,12 @@ func CredentialsResetProcessCredentials(c buffalo.Context) error {
 
 	if err := c.Bind(&request); err != nil {
 		return errors.WithStack(err)
+	}
+	if len(request.PublicKey) != 0 {
+		//try to convert the key from putty format
+		if newKey, err := ssh.ConvertPuttySSH(request.PublicKey); err == nil {
+			request.PublicKey = newKey
+		}
 	}
 	validate := request.ValidateSSHOrPassword()
 

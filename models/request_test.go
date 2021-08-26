@@ -57,6 +57,25 @@ func (ms *ModelSuite) Test_RequestValidateOK() {
 	ms.False(checkError.HasAny())
 }
 
+func (ms *ModelSuite) Test_RequestPuttyKeyOK() {
+	u := Request{}
+	u.Email = "user@example.com"
+	ms.Error(u.Validate(DB))
+	u.Name = "test"
+	ms.Error(u.Validate(DB))
+	u.LastName = "test"
+	ms.Error(u.Validate(DB))
+	u.PublicKey = `---- BEGIN SSH2 PUBLIC KEY ----
+Comment: "ed25519-key-20210826"
+AAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLu
+o4uJ
+---- END SSH2 PUBLIC KEY ----`
+	ms.Error(u.Validate(DB))
+	checkError, err := u.Validate(DB)
+	ms.NoError(err)
+	ms.False(checkError.HasAny())
+}
+
 func (ms *ModelSuite) Test_RequestCreateOK() {
 	u := Request{}
 	u.Email = "user@example.com"
