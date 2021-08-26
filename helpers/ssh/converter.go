@@ -32,7 +32,25 @@ func ConvertPuttySSH(sshKey string) (string, error) {
 		comment = strings.Trim(comment, "'")
 	}
 
-	newKey := "ssh-rsa " + strings.Join(sshKeyLines[keyStart:keyEnd], "")
+	key := strings.Join(sshKeyLines[keyStart:keyEnd], "")
+
+	keyType, _, err := DetermineType(key)
+	if err != nil {
+		return "", err
+	}
+
+	keyPrefix := ""
+
+	switch keyType {
+	case RSAKey:
+		keyPrefix = "ssh-rsa"
+	case Ed25519Key:
+		keyPrefix = "ssh-ed25519"
+	default:
+		return "", errors.New("Invalid key")
+	}
+
+	newKey := keyPrefix + " " + key
 	if comment != "" {
 		newKey = newKey + " " + comment
 	}
