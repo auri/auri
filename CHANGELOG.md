@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.0.4](https://github.com/auri/auri/tree/v0.0.4) (2021-08-26)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.3...v0.0.4)
+
+**Merged pull requests:**
+
+- Support of public keys in putty format [\#24](https://github.com/auri/auri/pull/24) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Refactoring: file name should be equal with model [\#23](https://github.com/auri/auri/pull/23) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- README: Docs on the URLs used by auri and reverse proxy [\#22](https://github.com/auri/auri/pull/22) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- README: steps for auri account on IPA [\#21](https://github.com/auri/auri/pull/21) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- New go release 1.17 [\#20](https://github.com/auri/auri/pull/20) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Development env: install missing wget [\#19](https://github.com/auri/auri/pull/19) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Show the version on the CLI help page [\#18](https://github.com/auri/auri/pull/18) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Buffalo update to 0.17.2/0.17.1 [\#17](https://github.com/auri/auri/pull/17) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go update to 1.16.7 [\#16](https://github.com/auri/auri/pull/16) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.3](https://github.com/auri/auri/tree/v0.0.3) (2021-08-11)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.2...v0.0.3)
