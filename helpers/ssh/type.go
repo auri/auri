@@ -21,7 +21,8 @@ const (
 //DetermineType returns the type of given ssh key and it's length in bits (only RSA)
 // and an error if something goes wrong
 func DetermineType(sshKey string) (KeyType, int, error) {
-	key, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey))
+	// we use the ssh-unknown prefix as ParseAuthorizedKey expects it this way (but strips it by itself)
+	key, _, _, _, err := ssh.ParseAuthorizedKey([]byte("ssh-unknown " + sshKey))
 	if err != nil {
 		return 0, 0, errors.New("Invalid key format")
 	}
