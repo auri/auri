@@ -10,7 +10,7 @@ test: ## Run the tests
 	go tool cover -func=cover/c.out
 
 build: ## Build the project
-	 buffalo build -v --environment production --ldflags "-X auri/config.prodBuild=yes" --ldflags "-X auri/config.version=$(VERSION)" --tags prodBuild
+	 buffalo build -v --environment production --ldflags "-X auri/config.prodBuild=yes -X auri/config.version=$(VERSION)" --tags prodBuild
 
 help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
