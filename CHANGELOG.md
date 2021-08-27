@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.5](https://github.com/auri/auri/tree/v0.0.5) (2021-08-27)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.4...v0.0.5)
+
+**Merged pull requests:**
+
+- Fix: broken production builds due to missing prodBuild flag [\#25](https://github.com/auri/auri/pull/25) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.4](https://github.com/auri/auri/tree/v0.0.4) (2021-08-26)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.3...v0.0.4)
