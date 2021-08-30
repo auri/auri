@@ -13,6 +13,7 @@ Vagrant.configure('2') do |config|
   config.vm.box = 'bento/centos-7'
   config.vm.network 'forwarded_port', guest: 5432, host_ip: '127.0.0.1', host: ENV['AURI_POSTGRES_PORT']
   config.vm.network 'forwarded_port', guest: 3000, host_ip: '127.0.0.1', host: ENV['AURI_BUFFALO_PORT']
+  config.vm.network 'forwarded_port', guest: 35729, host_ip: '127.0.0.1', host: 35729 # livereload
 
   # postgres installation
   config.vm.provision 'shell', inline: <<~EOS
