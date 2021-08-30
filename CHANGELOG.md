@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.0.6](https://github.com/auri/auri/tree/v0.0.6) (2021-08-30)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.5...v0.0.6)
+
+**Merged pull requests:**
+
+- Fix: handle CRLF properly for the provided keys [\#27](https://github.com/auri/auri/pull/27) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Dev env: port forwarding for live reload [\#26](https://github.com/auri/auri/pull/26) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.5](https://github.com/auri/auri/tree/v0.0.5) (2021-08-27)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.4...v0.0.5)
