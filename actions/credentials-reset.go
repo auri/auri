@@ -178,6 +178,7 @@ func CredentialsResetProcessCredentials(c buffalo.Context) error {
 	if len(request.PublicKey) != 0 {
 		//try to convert the key from putty format
 		if newKey, err := ssh.ConvertPuttySSH(request.PublicKey); err == nil {
+			logger.AuriLogger.Infof("Credential reset: got public key in Putty format, converted it to OpenSSH authorized_keys format")
 			request.PublicKey = newKey
 		}
 	}

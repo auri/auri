@@ -84,6 +84,10 @@ o4uJ
 ---- END SSH2 PUBLIC KEY ----`,
 			"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLuo4uJ ed25519-key-20210826",
 			""},
+		{" ed25519 putty key with CRLF line ending (possible input from browser)",
+			"---- BEGIN SSH2 PUBLIC KEY ----\r\nComment: \"ed25519-key-20210826\"\r\nAAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLu\r\no4uJ\r\n---- END SSH2 PUBLIC KEY ----",
+			"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIALoF39Bi+IqrjGnRdXSZRA8ih/FcB3NXWamTLLuo4uJ ed25519-key-20210826",
+			""},
 	}
 
 	for _, tt := range tests {
