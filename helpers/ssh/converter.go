@@ -15,7 +15,7 @@ func ConvertPuttySSH(sshKey string) (string, error) {
 
 	sshKey = strings.TrimSpace(sshKey)
 	sshKeyLines := strings.Split(sshKey, "\n")
-	if len(sshKeyLines) < 3 || sshKeyLines[0] != header || sshKeyLines[len(sshKeyLines)-1] != footer {
+	if len(sshKeyLines) < 3 || strings.TrimSpace(sshKeyLines[0]) != header || strings.TrimSpace(sshKeyLines[len(sshKeyLines)-1]) != footer {
 		return "", errors.New("Invalid putty public key")
 	}
 
@@ -32,7 +32,11 @@ func ConvertPuttySSH(sshKey string) (string, error) {
 		comment = strings.Trim(comment, "'")
 	}
 
-	key := strings.Join(sshKeyLines[keyStart:keyEnd], "")
+	key := ""
+	for _, l := range sshKeyLines[keyStart:keyEnd] {
+		//we have to append the lines this way, so we can trim possible spaces and CRLF's
+		key = key + strings.TrimSpace(l)
+	}
 
 	keyType, _, err := DetermineType(key)
 	if err != nil {
