@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         go: [ '1.17.2' ]
-        gobuffalo: [ '0.17.1' ]
+        gobuffalo: [ '0.17.5' ]
     services:
       postgres:
         image: postgres:12
@@ -119,7 +119,7 @@ jobs:
       matrix:
         go: [ '1.17.2' ]
         node: [ '14' ]
-        gobuffalo: [ '0.17.1' ]
+        gobuffalo: [ '0.17.5' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2

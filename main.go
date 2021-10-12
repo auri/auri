@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	_ "github.com/gobuffalo/flect" //https://github.com/gobuffalo/buffalo/issues/2138
 )
 
 const helpInfo = `NAME:
