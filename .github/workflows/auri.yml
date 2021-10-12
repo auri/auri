@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.17.1' ]
+        go: [ '1.17.2' ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.17.1' ]
+        go: [ '1.17.2' ]
         gobuffalo: [ '0.17.1' ]
     services:
       postgres:
@@ -117,7 +117,7 @@ jobs:
       - build-data
     strategy:
       matrix:
-        go: [ '1.17.1' ]
+        go: [ '1.17.2' ]
         node: [ '14' ]
         gobuffalo: [ '0.17.1' ]
     steps:

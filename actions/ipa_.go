@@ -1,4 +1,4 @@
-// +build prodBuild
+//go:build prodBuild
 
 package actions
 
