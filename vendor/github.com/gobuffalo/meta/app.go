@@ -54,35 +54,26 @@ func (a App) IsZero() bool {
 }
 
 func resolvePackageName(name string, pwd string) string {
-	result, _ := envy.CurrentModule()
-
-	if filepath.Base(result) != name {
-		result = path.Join(result, name)
+	modp := filepath.Join(pwd, name, "go.mod")
+	if strings.HasSuffix(pwd, name) {
+		modp = filepath.Join(pwd, "go.mod")
 	}
-	if envy.Mods() {
-		modp := filepath.Join(pwd, name, "go.mod")
-		if strings.HasSuffix(pwd, name) {
-			modp = filepath.Join(pwd, "go.mod")
-		}
-		moddata, err := ioutil.ReadFile(modp)
-		if err != nil {
-			if envy.InGoPath() {
-				p := envy.CurrentPackage()
-				if !strings.HasSuffix(p, name) {
-					return path.Join(p, name)
-				}
-				return p
+	moddata, err := ioutil.ReadFile(modp)
+	if err != nil {
+		if envy.InGoPath() {
+			p, _ := envy.CurrentModule()
+			if !strings.HasSuffix(p, name) {
+				return path.Join(p, name)
 			}
-			return name
+			return p
 		}
-		packagePath := modfile.ModulePath(moddata)
-		if packagePath == "" {
-			return name
-		}
-		return packagePath
+		return name
 	}
-
-	return result
+	packagePath := modfile.ModulePath(moddata)
+	if packagePath == "" {
+		return name
+	}
+	return packagePath
 }
 
 // ResolveSymlinks takes a path and gets the pointed path

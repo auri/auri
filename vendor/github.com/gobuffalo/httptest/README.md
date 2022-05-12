@@ -2,6 +2,7 @@
 
 <p align="center">
 <a href="https://godoc.org/github.com/gobuffalo/httptest"><img src="https://godoc.org/github.com/gobuffalo/httptest?status.svg" alt="GoDoc" /></a>
+<a href="https://github.com/gobuffalo/httptest/actions"><img src="https://github.com/gobuffalo/httptest/actions/workflows/tests.yml/badge.svg" alt="Build status" /></a>
 <a href="https://goreportcard.com/report/github.com/gobuffalo/httptest"><img src="https://goreportcard.com/badge/github.com/gobuffalo/httptest" alt="Go Report Card" /></a>
 </p>
 

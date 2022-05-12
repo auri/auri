@@ -59,10 +59,12 @@ You can pass an optional map of fields that will be set.</p>
 ## [`content#New`](https://godoc.org/github.com/gobuffalo/helpers/content#New)
 <p>New returns a map of the helpers within this package.</p>
 
+## [`content#WithDefault`](https://godoc.org/github.com/gobuffalo/helpers/content#WithDefault)
+<p>WithDefault allows to get the value from a key in the context or a default value if not present.</p>
+
 
 ## [`debug#Debug`](https://godoc.org/github.com/gobuffalo/helpers/debug#Debug)
 <p>Debug by verbosely printing out using &#39;pre&#39; tags.</p>
-
 
 ## [`debug#Inspect`](https://godoc.org/github.com/gobuffalo/helpers/debug#Inspect)
 <p>Inspect the interface using the <code>%+v</code> formatter</p>
