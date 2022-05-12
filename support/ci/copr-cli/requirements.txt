@@ -1,0 +1,6 @@
+copr-cli==1.98
+copr==1.115
+humanize==4.0.0
+munch==2.5.0
+requests_toolbelt==0.9.1
+marshmallow==3.14.1

@@ -232,7 +232,7 @@ jobs:
         with:
           name: auri.src.rpm
       - name: setup environment
-        run: pip install copr-cli
+        run: pip install -r support/ci/copr-cli/requirements.txt
       - name: prepare copr token
         run: |
           mkdir -p ~/.config/
