@@ -59,7 +59,7 @@ func (c *compiler) compile() (string, error) {
 			if c.curStmt != nil {
 				s = c.curStmt
 			}
-			return "", fmt.Errorf("line %d: %s", s.T().LineNumber, err)
+			return "", fmt.Errorf("line %d: %w", s.T().LineNumber, err)
 		}
 
 		c.write(bb, res)
@@ -355,7 +355,13 @@ func (c *compiler) evalAccessIndex(left, index interface{}, node *ast.IndexExpre
 				returnValue, err = c.evalIndexCallee(rv.Index(i), node)
 
 			} else {
-				returnValue = rv.Index(i).Interface()
+				if i >= 0 && i < rv.Len() {
+					returnValue = rv.Index(i).Interface()
+				} else {
+
+					err = fmt.Errorf("array index out of bounds, got index %d, while array size is %d", index, rv.Len())
+
+				}
 			}
 
 		} else {
@@ -768,7 +774,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 	res := rv.Call(args)
 	if len(res) > 0 {
 		if e, ok := res[len(res)-1].Interface().(error); ok {
-			return nil, fmt.Errorf("could not call %s function: %s", node.Function, e)
+			return nil, fmt.Errorf("could not call %s function: %w", node.Function, e)
 		}
 		return res[0].Interface(), nil
 	}

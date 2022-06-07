@@ -4,7 +4,7 @@ import (
 	"auri/config"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/buffalo/render"

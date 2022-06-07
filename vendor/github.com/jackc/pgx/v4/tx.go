@@ -10,39 +10,48 @@ import (
 	"github.com/jackc/pgconn"
 )
 
+// TxIsoLevel is the transaction isolation level (serializable, repeatable read, read committed or read uncommitted)
 type TxIsoLevel string
 
 // Transaction isolation levels
 const (
-	Serializable    = TxIsoLevel("serializable")
-	RepeatableRead  = TxIsoLevel("repeatable read")
-	ReadCommitted   = TxIsoLevel("read committed")
-	ReadUncommitted = TxIsoLevel("read uncommitted")
+	Serializable    TxIsoLevel = "serializable"
+	RepeatableRead  TxIsoLevel = "repeatable read"
+	ReadCommitted   TxIsoLevel = "read committed"
+	ReadUncommitted TxIsoLevel = "read uncommitted"
 )
 
+// TxAccessMode is the transaction access mode (read write or read only)
 type TxAccessMode string
 
 // Transaction access modes
 const (
-	ReadWrite = TxAccessMode("read write")
-	ReadOnly  = TxAccessMode("read only")
+	ReadWrite TxAccessMode = "read write"
+	ReadOnly  TxAccessMode = "read only"
 )
 
+// TxDeferrableMode is the transaction deferrable mode (deferrable or not deferrable)
 type TxDeferrableMode string
 
 // Transaction deferrable modes
 const (
-	Deferrable    = TxDeferrableMode("deferrable")
-	NotDeferrable = TxDeferrableMode("not deferrable")
+	Deferrable    TxDeferrableMode = "deferrable"
+	NotDeferrable TxDeferrableMode = "not deferrable"
 )
 
+// TxOptions are transaction modes within a transaction block
 type TxOptions struct {
 	IsoLevel       TxIsoLevel
 	AccessMode     TxAccessMode
 	DeferrableMode TxDeferrableMode
 }
 
+var emptyTxOptions TxOptions
+
 func (txOptions TxOptions) beginSQL() string {
+	if txOptions == emptyTxOptions {
+		return "begin"
+	}
 	buf := &bytes.Buffer{}
 	buf.WriteString("begin")
 	if txOptions.IsoLevel != "" {
@@ -104,7 +113,7 @@ func (c *Conn) BeginTxFunc(ctx context.Context, txOptions TxOptions, f func(Tx) 
 	}
 	defer func() {
 		rollbackErr := tx.Rollback(ctx)
-		if !(rollbackErr == nil || errors.Is(rollbackErr, ErrTxClosed)) {
+		if rollbackErr != nil && !errors.Is(rollbackErr, ErrTxClosed) {
 			err = rollbackErr
 		}
 	}()
@@ -198,7 +207,7 @@ func (tx *dbTx) BeginFunc(ctx context.Context, f func(Tx) error) (err error) {
 	}
 	defer func() {
 		rollbackErr := savepoint.Rollback(ctx)
-		if !(rollbackErr == nil || errors.Is(rollbackErr, ErrTxClosed)) {
+		if rollbackErr != nil && !errors.Is(rollbackErr, ErrTxClosed) {
 			err = rollbackErr
 		}
 	}()

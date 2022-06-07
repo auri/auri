@@ -3,7 +3,7 @@
 /bin/
 /tmp/
 /node_modules/
-/public/
+/public/assets/
 /.vscode/
 /.env
 .DS_Store
