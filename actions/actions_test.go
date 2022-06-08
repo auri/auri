@@ -3,10 +3,11 @@ package actions
 import (
 	"auri/ipaclient"
 	"auri/mail"
+
+	"os"
 	"testing"
 
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/suite/v3"
+	"github.com/gobuffalo/suite/v4"
 )
 
 type ActionSuite struct {
@@ -17,7 +18,7 @@ func Test_ActionSuite(t *testing.T) {
 	mail.New = mail.NewMock
 	ipaclient.New = ipaclient.NewMock
 
-	action, err := suite.NewActionWithFixtures(App(), packr.New("Test_ActionSuite", "../fixtures"))
+	action, err := suite.NewActionWithFixtures(App(), os.DirFS("../fixtures"))
 	if err != nil {
 		t.Fatal(err)
 	}

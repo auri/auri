@@ -2,6 +2,7 @@ package buffalo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -83,7 +84,7 @@ func (ri *RouteInfo) BuildPathHelper() RouteHelperFunc {
 			return "", fmt.Errorf("missing parameters for %v: %s", cRoute.Path, err)
 		}
 
-		result := url.Path
+		result := url.String()
 		result = addExtraParamsTo(result, opts)
 
 		return template.HTML(result), nil
@@ -102,11 +103,11 @@ func (ri RouteInfo) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	events.EmitPayload(EvtRouteStarted, payload)
 	err := a.Middleware.handler(ri)(c)
-	c.Flash().persist(c.Session())
 
 	if err != nil {
 		status := http.StatusInternalServerError
-		if he, ok := err.(HTTPError); ok {
+		var he HTTPError
+		if errors.As(err, &he) {
 			status = he.Status
 		}
 		events.EmitError(EvtRouteErr, err, payload)

@@ -2,6 +2,7 @@
 
 <p align="center">
 <a href="https://godoc.org/github.com/gobuffalo/events"><img src="https://godoc.org/github.com/gobuffalo/events?status.svg" alt="GoDoc" /></a>
+<a href="https://github.com/gobuffalo/events/actions"><img src="https://github.com/gobuffalo/events/actions/workflows/tests.yml/badge.svg" alt="Build status" /></a>
 <a href="https://goreportcard.com/report/github.com/gobuffalo/events"><img src="https://goreportcard.com/badge/github.com/gobuffalo/events" alt="Go Report Card" /></a>
 </p>
 

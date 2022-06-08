@@ -3,12 +3,14 @@ package mail
 import (
 	"auri/config"
 	"auri/logger"
+	"auri/public"
+	template "auri/templates/mail"
+
 	"crypto/tls"
 	"strconv"
 
 	"github.com/gobuffalo/buffalo/mail"
 	"github.com/gobuffalo/buffalo/render"
-	"github.com/gobuffalo/packr/v2"
 	"github.com/pkg/errors"
 )
 
@@ -73,10 +75,13 @@ func GetSender() (mail.Sender, error) {
 func getRenderer() *render.Engine {
 	if renderer == nil {
 		renderer = render.New(render.Options{
-			HTMLLayout:   "layout.html",
-			TemplatesBox: packr.New("app:mailers:templates", "../templates/mail"),
-			AssetsBox:    packr.New("app:assets", "../public"),
-			Helpers:      render.Helpers{},
+			HTMLLayout: "layout.html",
+			// fs.FS containing templates
+			TemplatesFS: template.FS(),
+
+			// fs.FS containing assets
+			AssetsFS: public.FS(),
+			Helpers:  render.Helpers{},
 		})
 	}
 	return renderer

@@ -1,5 +1,8 @@
 # Fizz
 
+[![Actions Status](https://github.com/gobuffalo/fizz/workflows/Tests/badge.svg)](https://github.com/gobuffalo/fizz/actions)
+[![GoDoc](https://godoc.org/github.com/gobuffalo/fizz?status.svg)](https://godoc.org/github.com/gobuffalo/fizz)
+
 A Common DSL for Migrating Databases
 
 ## Create a Table
@@ -196,4 +199,21 @@ Sometimes during a migration you need to shell out to an external command.
 
 ```javascript
 exec("echo hello")
+```
+
+## Development
+
+### Testing
+
+To run end-to-end tests, use
+
+```
+make test
+```
+
+If you made changes to the end-to-end tests and want to update the fixtures,
+run the following command a couple of times until tests pass:
+
+```
+REFRESH_FIXTURES=true make test
 ```

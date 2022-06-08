@@ -3,7 +3,7 @@ package models
 import (
 	"auri/config"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 )
 
 // DB is a connection to your database to be used

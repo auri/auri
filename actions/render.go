@@ -2,13 +2,15 @@ package actions
 
 import (
 	"auri/config"
+	"auri/public"
+	"auri/templates"
 
-	"github.com/gobuffalo/buffalo/render"
 	"github.com/gobuffalo/packr/v2"
+	"github.com/gobuffalo/buffalo/render"
 )
 
 var r *render.Engine
-var assetsBox = packr.New("app:assets", "../public")
+
 var customAssetsBox *packr.Box
 
 // DoInit for manual initialization
@@ -18,8 +20,8 @@ func DoInit() {
 		HTMLLayout: "application.plush.html",
 
 		// Box containing all of the templates:
-		TemplatesBox: packr.New("app:templates", config.GetInstance().WebTemplatePath),
-		AssetsBox:    assetsBox,
+		TemplatesFS: templates.FS(),
+		AssetsFS:    public.FS(),
 
 		// Add template helpers here:
 		Helpers: render.Helpers{

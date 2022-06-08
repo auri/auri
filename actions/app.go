@@ -4,10 +4,13 @@ import (
 	"auri/config"
 	"auri/logger"
 	"auri/models"
+	"auri/public"
+
 	"log"
+	"net/http"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo-pop/v2/pop/popmw"
+	"github.com/gobuffalo/buffalo-pop/v3/pop/popmw"
 	csrf "github.com/gobuffalo/mw-csrf"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gorilla/sessions"
@@ -86,7 +89,7 @@ func App() *buffalo.App {
 			app.ServeFiles("/cassets", customAssetsBox)
 		}
 
-		app.ServeFiles("/", assetsBox) // serve files from the public directory
+		app.ServeFiles("/", http.FS(public.FS())) // serve files from the public directory
 	}
 
 	return app

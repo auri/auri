@@ -3,10 +3,10 @@ package grifts
 import (
 	"auri/ipaclient"
 	"auri/mail"
+	"os"
 	"testing"
 
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/suite/v3"
+	"github.com/gobuffalo/suite/v4"
 )
 
 type TaskSuite struct {
@@ -17,7 +17,7 @@ func Test_TaskSuite(t *testing.T) {
 	mail.New = mail.NewMock
 	ipaclient.New = ipaclient.NewMock
 
-	model, err := suite.NewModelWithFixtures(packr.New("app:models:test:fixtures", "../fixtures"))
+	model, err := suite.NewModelWithFixtures(os.DirFS("../fixtures"))
 	if err != nil {
 		t.Fatal(err)
 	}

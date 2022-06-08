@@ -248,21 +248,21 @@ func ParseConfig(connString string) (*Config, error) {
 	config.LookupFunc = makeDefaultResolver().LookupHost
 
 	notRuntimeParams := map[string]struct{}{
-		"host":                 struct{}{},
-		"port":                 struct{}{},
-		"database":             struct{}{},
-		"user":                 struct{}{},
-		"password":             struct{}{},
-		"passfile":             struct{}{},
-		"connect_timeout":      struct{}{},
-		"sslmode":              struct{}{},
-		"sslkey":               struct{}{},
-		"sslcert":              struct{}{},
-		"sslrootcert":          struct{}{},
-		"target_session_attrs": struct{}{},
-		"min_read_buffer_size": struct{}{},
-		"service":              struct{}{},
-		"servicefile":          struct{}{},
+		"host":                 {},
+		"port":                 {},
+		"database":             {},
+		"user":                 {},
+		"password":             {},
+		"passfile":             {},
+		"connect_timeout":      {},
+		"sslmode":              {},
+		"sslkey":               {},
+		"sslcert":              {},
+		"sslrootcert":          {},
+		"target_session_attrs": {},
+		"min_read_buffer_size": {},
+		"service":              {},
+		"servicefile":          {},
 	}
 
 	for k, v := range settings {
@@ -297,7 +297,7 @@ func ParseConfig(connString string) (*Config, error) {
 			tlsConfigs = append(tlsConfigs, nil)
 		} else {
 			var err error
-			tlsConfigs, err = configTLS(settings)
+			tlsConfigs, err = configTLS(settings, host)
 			if err != nil {
 				return nil, &parseConfigError{connString: connString, msg: "failed to configure TLS", err: err}
 			}
@@ -329,10 +329,19 @@ func ParseConfig(connString string) (*Config, error) {
 		}
 	}
 
-	if settings["target_session_attrs"] == "read-write" {
+	switch tsa := settings["target_session_attrs"]; tsa {
+	case "read-write":
 		config.ValidateConnect = ValidateConnectTargetSessionAttrsReadWrite
-	} else if settings["target_session_attrs"] != "any" {
-		return nil, &parseConfigError{connString: connString, msg: fmt.Sprintf("unknown target_session_attrs value: %v", settings["target_session_attrs"])}
+	case "read-only":
+		config.ValidateConnect = ValidateConnectTargetSessionAttrsReadOnly
+	case "primary":
+		config.ValidateConnect = ValidateConnectTargetSessionAttrsPrimary
+	case "standby":
+		config.ValidateConnect = ValidateConnectTargetSessionAttrsStandby
+	case "any", "prefer-standby":
+		// do nothing
+	default:
+		return nil, &parseConfigError{connString: connString, msg: fmt.Sprintf("unknown target_session_attrs value: %v", tsa)}
 	}
 
 	return config, nil
@@ -411,8 +420,12 @@ func parseURLSettings(connString string) (map[string]string, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to split host:port in '%s', err: %w", host, err)
 		}
-		hosts = append(hosts, h)
-		ports = append(ports, p)
+		if h != "" {
+			hosts = append(hosts, h)
+		}
+		if p != "" {
+			ports = append(ports, p)
+		}
 	}
 	if len(hosts) > 0 {
 		settings["host"] = strings.Join(hosts, ",")
@@ -426,7 +439,15 @@ func parseURLSettings(connString string) (map[string]string, error) {
 		settings["database"] = database
 	}
 
+	nameMap := map[string]string{
+		"dbname": "database",
+	}
+
 	for k, v := range url.Query() {
+		if k2, present := nameMap[k]; present {
+			k = k2
+		}
+
 		settings[k] = v[0]
 	}
 
@@ -540,8 +561,8 @@ func parseServiceSettings(servicefilePath, serviceName string) (map[string]strin
 // configTLS uses libpq's TLS parameters to construct  []*tls.Config. It is
 // necessary to allow returning multiple TLS configs as sslmode "allow" and
 // "prefer" allow fallback.
-func configTLS(settings map[string]string) ([]*tls.Config, error) {
-	host := settings["host"]
+func configTLS(settings map[string]string, thisHost string) ([]*tls.Config, error) {
+	host := thisHost
 	sslmode := settings["sslmode"]
 	sslrootcert := settings["sslrootcert"]
 	sslcert := settings["sslcert"]
@@ -711,6 +732,51 @@ func ValidateConnectTargetSessionAttrsReadWrite(ctx context.Context, pgConn *PgC
 
 	if string(result.Rows[0][0]) == "on" {
 		return errors.New("read only connection")
+	}
+
+	return nil
+}
+
+// ValidateConnectTargetSessionAttrsReadOnly is an ValidateConnectFunc that implements libpq compatible
+// target_session_attrs=read-only.
+func ValidateConnectTargetSessionAttrsReadOnly(ctx context.Context, pgConn *PgConn) error {
+	result := pgConn.ExecParams(ctx, "show transaction_read_only", nil, nil, nil, nil).Read()
+	if result.Err != nil {
+		return result.Err
+	}
+
+	if string(result.Rows[0][0]) != "on" {
+		return errors.New("connection is not read only")
+	}
+
+	return nil
+}
+
+// ValidateConnectTargetSessionAttrsStandby is an ValidateConnectFunc that implements libpq compatible
+// target_session_attrs=standby.
+func ValidateConnectTargetSessionAttrsStandby(ctx context.Context, pgConn *PgConn) error {
+	result := pgConn.ExecParams(ctx, "select pg_is_in_recovery()", nil, nil, nil, nil).Read()
+	if result.Err != nil {
+		return result.Err
+	}
+
+	if string(result.Rows[0][0]) != "t" {
+		return errors.New("server is not in hot standby mode")
+	}
+
+	return nil
+}
+
+// ValidateConnectTargetSessionAttrsPrimary is an ValidateConnectFunc that implements libpq compatible
+// target_session_attrs=primary.
+func ValidateConnectTargetSessionAttrsPrimary(ctx context.Context, pgConn *PgConn) error {
+	result := pgConn.ExecParams(ctx, "select pg_is_in_recovery()", nil, nil, nil, nil).Read()
+	if result.Err != nil {
+		return result.Err
+	}
+
+	if string(result.Rows[0][0]) == "t" {
+		return errors.New("server is in standby mode")
 	}
 
 	return nil

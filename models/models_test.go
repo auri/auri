@@ -3,12 +3,12 @@ package models
 import (
 	"auri/ipaclient"
 	"auri/logger"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/suite/v3"
+	"github.com/gobuffalo/suite/v4"
 )
 
 type ModelSuite struct {
@@ -20,7 +20,7 @@ func Test_ModelSuite(t *testing.T) {
 	require.NoError(t, logger.CreateFileLoggers())
 	ConnectDB("test")
 
-	model, err := suite.NewModelWithFixtures(packr.New("app:models:test:fixtures", "../fixtures"))
+	model, err := suite.NewModelWithFixtures(os.DirFS("../fixtures"))
 	if err != nil {
 		t.Fatal(err)
 	}

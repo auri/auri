@@ -1,5 +1,5 @@
 # github.com/gobuffalo/validate
-[![Build Status](https://travis-ci.org/gobuffalo/validate.svg?branch=master)](https://travis-ci.org/gobuffalo/validate) [![GoDoc](https://godoc.org/github.com/gobuffalo/validate?status.svg)](https://godoc.org/github.com/gobuffalo/validate)
+[![Build Status](https://travis-ci.org/gobuffalo/validate.svg?branch=master)](https://travis-ci.org/gobuffalo/validate) [![Actions Status](https://github.com/gobuffalo/validate/workflows/Tests/badge.svg)](https://github.com/gobuffalo/validate/actions) [![GoDoc](https://godoc.org/github.com/gobuffalo/validate?status.svg)](https://godoc.org/github.com/gobuffalo/validate)
 
 This package provides a framework for writing validations for Go applications. It does provide you with few validators, but if you need others you can easly build them.
 
@@ -120,4 +120,4 @@ All fields are required for each validators, except Message (every validator has
 
 ### Available Validators
 
-A full list of available validators can be found at [https://godoc.org/github.com/gobuffalo/validate/validators](https://godoc.org/github.com/gobuffalo/validate/validators).
+A full list of available validators can be found at [https://pkg.go.dev/github.com/gobuffalo/validate/v3/validators](https://pkg.go.dev/github.com/gobuffalo/validate/v3/validators).

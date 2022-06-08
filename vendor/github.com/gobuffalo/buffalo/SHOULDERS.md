@@ -4,7 +4,6 @@ github.com/gobuffalo/buffalo does not try to reinvent the wheel! Instead, it use
 
 Thank you to the following **GIANTS**:
 
-
 * [cloud.google.com/go](https://godoc.org/cloud.google.com/go)
 
 * [dmitri.shuralyov.com/app/changes](https://godoc.org/dmitri.shuralyov.com/app/changes)
@@ -146,12 +145,6 @@ Thank you to the following **GIANTS**:
 * [github.com/gobuffalo/mw-tokenauth](https://godoc.org/github.com/gobuffalo/mw-tokenauth)
 
 * [github.com/gobuffalo/nulls](https://godoc.org/github.com/gobuffalo/nulls)
-
-* [github.com/gobuffalo/packd](https://godoc.org/github.com/gobuffalo/packd)
-
-* [github.com/gobuffalo/packr](https://godoc.org/github.com/gobuffalo/packr)
-
-* [github.com/gobuffalo/packr/v2](https://godoc.org/github.com/gobuffalo/packr/v2)
 
 * [github.com/gobuffalo/plush](https://godoc.org/github.com/gobuffalo/plush)
 

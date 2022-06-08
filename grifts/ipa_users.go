@@ -12,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gobuffalo/nulls"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/markbates/grift/grift"
 	"github.com/pkg/errors"
 	"github.com/tehwalris/go-freeipa/freeipa"

@@ -293,6 +293,7 @@ func NewConnInfo() *ConnInfo {
 	ci.RegisterDataType(DataType{Value: &Interval{}, Name: "interval", OID: IntervalOID})
 	ci.RegisterDataType(DataType{Value: &JSON{}, Name: "json", OID: JSONOID})
 	ci.RegisterDataType(DataType{Value: &JSONB{}, Name: "jsonb", OID: JSONBOID})
+	ci.RegisterDataType(DataType{Value: &JSONBArray{}, Name: "_jsonb", OID: JSONBArrayOID})
 	ci.RegisterDataType(DataType{Value: &Line{}, Name: "line", OID: LineOID})
 	ci.RegisterDataType(DataType{Value: &Lseg{}, Name: "lseg", OID: LsegOID})
 	ci.RegisterDataType(DataType{Value: &Macaddr{}, Name: "macaddr", OID: MacaddrOID})
@@ -587,7 +588,11 @@ type scanPlanSQLScanner struct{}
 
 func (scanPlanSQLScanner) Scan(ci *ConnInfo, oid uint32, formatCode int16, src []byte, dst interface{}) error {
 	scanner := dst.(sql.Scanner)
-	if formatCode == BinaryFormatCode {
+	if src == nil {
+		// This is necessary because interface value []byte:nil does not equal nil:nil for the binary format path and the
+		// text format path would be converted to empty string.
+		return scanner.Scan(nil)
+	} else if formatCode == BinaryFormatCode {
 		return scanner.Scan(src)
 	} else {
 		return scanner.Scan(string(src))
