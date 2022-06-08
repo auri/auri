@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.0.8](https://github.com/auri/auri/tree/v0.0.8) (2022-06-08)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.7...v0.0.8)
+
+**Merged pull requests:**
+
+- Fix: close button for err messages [\#39](https://github.com/auri/auri/pull/39) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Fix: customized templates [\#38](https://github.com/auri/auri/pull/38) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.7](https://github.com/auri/auri/tree/v0.0.7) (2022-06-08)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.6...v0.0.7)
