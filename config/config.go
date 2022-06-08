@@ -22,7 +22,7 @@ type Config struct {
 	Environment                     string   `envyname:"ENVIRONMENT" default:"production"`
 	SessionSecret                   string   `envyname:"SESSION_SECRET"`
 	Layout                          string   `envyname:"LAYOUT" default:"application.html"`
-	WebTemplatePath                 string   `envyname:"WEB_TEMPLATE_PATH" default:"../templates"`
+	WebTemplatePath                 string   `envyname:"WEB_TEMPLATE_PATH" default:""`
 	WebAssetPath                    string   `envyname:"WEB_ASSET_PATH" default:""`
 	BaseURL                         string   `envyname:"BASE_URL"`
 	ContactEmail                    string   `envyname:"CONTACT_EMAIL"`
