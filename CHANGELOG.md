@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.0.7](https://github.com/auri/auri/tree/v0.0.7) (2022-06-08)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.6...v0.0.7)
+
+**Merged pull requests:**
+
+- Go update to 1.18.3 [\#37](https://github.com/auri/auri/pull/37) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go Buffalo upgrade to 0.18.4 [\#36](https://github.com/auri/auri/pull/36) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- CI fix: version pinning of copr CLI [\#34](https://github.com/auri/auri/pull/34) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go: update to the latest version 1.18.2 [\#33](https://github.com/auri/auri/pull/33) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go update to 1.17.8 [\#32](https://github.com/auri/auri/pull/32) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go: update to 1.17.2 [\#30](https://github.com/auri/auri/pull/30) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Update to go1.17.1 [\#28](https://github.com/auri/auri/pull/28) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.6](https://github.com/auri/auri/tree/v0.0.6) (2021-08-30)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.5...v0.0.6)
