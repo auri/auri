@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.0.9](https://github.com/auri/auri/tree/v0.0.9) (2022-06-14)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.8...v0.0.9)
+
+**Closed issues:**
+
+- Collapsed input fields [\#41](https://github.com/auri/auri/issues/41)
+
+**Merged pull requests:**
+
+- Fix: broken credential reset [\#42](https://github.com/auri/auri/pull/42) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Fix: admin alerts layout [\#40](https://github.com/auri/auri/pull/40) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.8](https://github.com/auri/auri/tree/v0.0.8) (2022-06-08)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.7...v0.0.8)
