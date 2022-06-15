@@ -1,0 +1,15 @@
+services:
+  dev:
+    build: .
+    ports:
+      - "3000:3000"
+      - "35729:35729" # livereload
+    volumes:
+      - .:/data
+    links:
+      - db
+  db:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
