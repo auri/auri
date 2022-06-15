@@ -48,7 +48,7 @@ jobs:
         image: postgres:12
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres123
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: auri_test
         ports:
           - 5432:5432
@@ -72,6 +72,8 @@ jobs:
         run: |
           go install github.com/gobuffalo/cli/cmd/buffalo@v${{ matrix.gobuffalo }}
       - name: run unit tests
+        env:
+          DB_HOST: 127.0.0.1
         run: |
            cp fixtures/testing-config.env .env
            make test
