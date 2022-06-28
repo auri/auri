@@ -40,6 +40,7 @@ type Config struct {
 	ProtectedGroups                 []string `envyname:"PROTECTED_GROUPS" default:""`
 	InitialCredentialSetupTimeframe int      `envyname:"INITIAL_CREDENTIAL_SETUP_TIMEFRAME" default:"48"`
 	EmailValidationTimeframe        int      `envyname:"EMAIL_VALIDATION_TIMEFRAME" default:"24"`
+	EmailTemplatePath               string   `envyname:"EMAIL_TEMPLATE_PATH" default:""`
 	EmailSubjectApproved            string   `envyname:"EMAIL_SUBJECT_APPROVED" default:"Account request was approved"`
 	EmailSubjectDeclined            string   `envyname:"EMAIL_SUBJECT_DECLINED" default:"Account request was declined"`
 	EmailSubjectReset               string   `envyname:"EMAIL_SUBJECT_RESET" default:"Password reset for your account"`

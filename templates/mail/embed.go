@@ -1,4 +1,4 @@
-package templates
+package mail
 
 import (
 	"auri/config"
@@ -15,9 +15,9 @@ var files embed.FS
 
 func FS() fs.FS { //revive:disable-line
 	// use own templates if defined
-	if config.GetInstance().WebTemplatePath != "" {
-		return os.DirFS(config.GetInstance().WebTemplatePath)
+	if config.GetInstance().EmailTemplatePath != "" {
+		return os.DirFS(config.GetInstance().EmailTemplatePath)
 	}
 
-	return buffalo.NewFS(files, "templates")
+	return buffalo.NewFS(files, "mail")
 }
