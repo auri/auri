@@ -19,22 +19,22 @@
   <%= form({action: accountrequestPath(), method: "POST"}) { %>
     <div class="offset-bottom-4">
       <div class="row">
-        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+        <div class="form-input-set offset-bottom-1">
           <%= f.InputTag({value: name, name: "name", placeholder: "First name"}) %>
         </div>
       </div>
       <div class="row">
-        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+        <div class="form-input-set offset-bottom-1">
           <%= f.InputTag({value: lastname, name: "lastname", placeholder: "Last name"}) %>
         </div>
       </div>
       <div class="row">
-        <div class="form-input-set offset-bottom-1 col-md-11 padding-right-zero">
+        <div class="form-input-set offset-bottom-1">
           <%= f.InputTag({value: mail, name: "mail", placeholder: "E-Mail address"}) %>
         </div>
       </div>
       <div class="row">
-        <div class="form-input-set offset-bottom-2 col-md-11 padding-right-zero">
+        <div class="form-input-set offset-bottom-1">
           <%= f.TextArea({value: comment, name: "comment", placeholder: "Optional comment (e.g. reason for account request)"}) %>
         </div>
       </div>
