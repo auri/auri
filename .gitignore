@@ -5,7 +5,7 @@
 /node_modules/
 /public/assets/
 /.vscode/
-/.env
+/.env*
 .DS_Store
 /.vagrant/
 /cover/
