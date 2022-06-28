@@ -96,7 +96,7 @@ func (ms *MailSuite) Test_SendMail() {
 				"Email": "test@example.com",
 				"Token": "TESTTOKEN",
 			},
-			"Can't load the email template: wrong-template: could not find template wrong-template.html",
+			"Can't load the email template: mail/wrong-template: could not find template mail/wrong-template.html",
 		},
 	}
 

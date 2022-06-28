@@ -4,7 +4,7 @@ import (
 	"auri/config"
 	"auri/logger"
 	"auri/public"
-	template "auri/templates/mail"
+	template "auri/templates"
 
 	"crypto/tls"
 	"strconv"
@@ -75,7 +75,7 @@ func GetSender() (mail.Sender, error) {
 func getRenderer() *render.Engine {
 	if renderer == nil {
 		renderer = render.New(render.Options{
-			HTMLLayout: "layout.html",
+			HTMLLayout: "mail/layout.html",
 			// fs.FS containing templates
 			TemplatesFS: template.FS(),
 
@@ -99,7 +99,7 @@ func Send(subject string, to []string, template string, data render.Data) error 
 	data["BaseURL"] = conf.BaseURL
 	data["ContactEmail"] = conf.ContactEmail
 
-	if err := m.AddBodies(data, getRenderer().HTML(template)); err != nil {
+	if err := m.AddBodies(data, getRenderer().HTML("mail/"+template)); err != nil {
 		return errors.WithMessage(err, "Can't load the email template")
 	}
 
