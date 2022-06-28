@@ -10,6 +10,13 @@ func (as *ActionSuite) Test_AccountRequestPageOk() {
 	as.Equal(200, res.Code, res.Body.String())
 }
 
+func (as *ActionSuite) Test_AccountRequestPageWithComment() {
+	res := as.HTML("/?comment=testcomment").Get()
+	body := res.Body.String()
+	as.Equal(200, res.Code, body)
+	as.Contains(body, ">testcomment</textarea>")
+}
+
 func (as *ActionSuite) Test_AccountRequestSubmitValidData() {
 	defer mail.ClearMock()
 	request := models.Request{Email: "user@example.com", Name: "test", LastName: "test"}
