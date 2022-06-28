@@ -19,7 +19,8 @@ func AccountRequestPage(c buffalo.Context) error {
 	c.Set("mail", defaults.String(c.Request().FormValue("mail"), ""))
 	c.Set("name", defaults.String(c.Request().FormValue("name"), ""))
 	c.Set("lastname", defaults.String(c.Request().FormValue("lastname"), ""))
-	c.Set("comment", defaults.String(c.Request().FormValue("comment"), ""))
+	c.Set("comment", defaults.String(c.Request().FormValue("comment"), defaults.String(c.Request().URL.Query().Get("comment"),"")))
+
 	return c.Render(http.StatusOK, accountRequestPageRenderer())
 }
 
