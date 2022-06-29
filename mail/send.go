@@ -76,7 +76,7 @@ func SendDecline(email string) error {
 func SendAdminNotification(userEmail, comment string) error {
 	return Send(
 		config.GetInstance().EmailSubjectAdminNotification,
-		config.GetInstance().NotificationAddresses,
+		config.GetInstance().AdminEmailNotificationAddresses,
 		"admin_notification.plush.html",
 		map[string]interface{}{
 			"userEmail": userEmail,
