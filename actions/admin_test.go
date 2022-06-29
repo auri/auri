@@ -131,10 +131,19 @@ func (as *ActionSuite) Test_UserApproved() {
 	resp := req.Put(&request)
 
 	as.NoError(as.DB.Where("email = ? ", request.Email).First(&reset))
-	m := mail.LastMessageFromMock()
+	msgs := mail.MessagesFromMock()
+	as.Equal(len(msgs), 2) // two mails: to the admins and to the user
+
+	m := msgs[0] // the user notification
 	as.Equal("domain@example.com", m.To[0])
 	as.Equal("noreply@ipa.example.com", m.From)
 	as.Equal("Account request was approved", m.Subject)
+	m = msgs[1] // the admin notification
+	as.Equal("admin1@example.com", m.To[0])
+	as.Equal("admin2@example.com", m.To[1])
+	as.Equal("noreply@ipa.example.com", m.From)
+	as.Equal("Account request was approved", m.Subject)
+
 	as.Equal(302, resp.Code)
 	as.Equal("/admin/", resp.Location())
 	as.Error(as.DB.Eager().Find(&request, "f19d5ab3-e913-4c08-b4dd-627e26ccbb0c"))
@@ -156,10 +165,19 @@ func (as *ActionSuite) Test_UserDisapproved() {
 	req := as.JSON(fmt.Sprintf("/admin/%s", request.ID))
 	resp := req.Delete()
 
-	m := mail.LastMessageFromMock()
+	msgs := mail.MessagesFromMock()
+	as.Equal(len(msgs), 2) // two mails: to the admins and to the user
+	m := msgs[0]           // the user notification
 	as.Equal("domain@example.com", m.To[0])
 	as.Equal("noreply@ipa.example.com", m.From)
 	as.Equal("Account request was declined", m.Subject)
+
+	m = msgs[1] // the admin notification
+	as.Equal("admin1@example.com", m.To[0])
+	as.Equal("admin2@example.com", m.To[1])
+	as.Equal("noreply@ipa.example.com", m.From)
+	as.Equal("Account request was declined", m.Subject)
+
 	as.Equal(302, resp.Code)
 	as.Equal("/admin/", resp.Location())
 	as.Error(as.DB.Eager().Find(&request, "f19d5ab3-e913-4c08-b4dd-627e26ccbb0c"))

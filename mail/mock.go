@@ -37,6 +37,11 @@ func LastMessageFromMock() mail.Message {
 	return ms
 }
 
+// MessagesFromMock returns all messages from the mock
+func MessagesFromMock() []mail.Message {
+	return getMock().Messages()
+}
+
 // MessageExistsInMock returns true if mail mock has some messages
 func MessageExistsInMock() bool {
 	return len(getMock().Messages()) > 0

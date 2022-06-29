@@ -52,18 +52,43 @@ func (ms *MailSuite) Test_SendMailToUserForPwrOK() {
 
 }
 
-func (ms *MailSuite) Test_SendMailToAdminOK() {
+func (ms *MailSuite) Test_SendNewReqestMailToAdminOK() {
 	New = NewMock
 	defer ClearMock()
 	request := &models.Request{}
-	err := SendAdminNotification(request.Email, request.CommentField.String)
+	err := SendAdminNewRequestNotification(request.Email, request.CommentField.String)
 	ms.NoError(err)
 	m := LastMessageFromMock()
 	ms.Equal("admin1@example.com", m.To[0])
 	ms.Equal("admin2@example.com", m.To[1])
 	ms.Equal("noreply@ipa.example.com", m.From)
 	ms.Equal("New account request", m.Subject)
+}
 
+func (ms *MailSuite) Test_SendReqestApprovedMailToAdminOK() {
+	New = NewMock
+	defer ClearMock()
+	request := &models.Request{}
+	err := SendAdminRequestApprovedNotification("admin", request.Email, request.CommentField.String)
+	ms.NoError(err)
+	m := LastMessageFromMock()
+	ms.Equal("admin1@example.com", m.To[0])
+	ms.Equal("admin2@example.com", m.To[1])
+	ms.Equal("noreply@ipa.example.com", m.From)
+	ms.Equal("Account request was approved", m.Subject)
+}
+
+func (ms *MailSuite) Test_SendRequestDeclinedMailToAdminOK() {
+	New = NewMock
+	defer ClearMock()
+	request := &models.Request{}
+	err := SendAdminRequestDeclinedNotification("admin", request.Email, request.CommentField.String)
+	ms.NoError(err)
+	m := LastMessageFromMock()
+	ms.Equal("admin1@example.com", m.To[0])
+	ms.Equal("admin2@example.com", m.To[1])
+	ms.Equal("noreply@ipa.example.com", m.From)
+	ms.Equal("Account request was declined", m.Subject)
 }
 
 func (ms *MailSuite) Test_SendMail() {
