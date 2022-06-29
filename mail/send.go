@@ -72,12 +72,12 @@ func SendDecline(email string) error {
 	)
 }
 
-//SendAdminNotification sends the notification about new account request to the admins
-func SendAdminNotification(userEmail, comment string) error {
+//SendAdminNewRequestNotification sends the notification about new account request to the admins
+func SendAdminNewRequestNotification(userEmail, comment string) error {
 	return Send(
-		config.GetInstance().EmailSubjectAdminNotification,
+		config.GetInstance().EmailSubjectAdminNewRequestNotification,
 		config.GetInstance().AdminEmailNotificationAddresses,
-		"admin_notification.plush.html",
+		"admin_new_request.plush.html",
 		map[string]interface{}{
 			"userEmail": userEmail,
 			"comment":   comment,

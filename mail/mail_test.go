@@ -52,11 +52,11 @@ func (ms *MailSuite) Test_SendMailToUserForPwrOK() {
 
 }
 
-func (ms *MailSuite) Test_SendMailToAdminOK() {
+func (ms *MailSuite) Test_SendNewReqestMailToAdminOK() {
 	New = NewMock
 	defer ClearMock()
 	request := &models.Request{}
-	err := SendAdminNotification(request.Email, request.CommentField.String)
+	err := SendAdminNewRequestNotification(request.Email, request.CommentField.String)
 	ms.NoError(err)
 	m := LastMessageFromMock()
 	ms.Equal("admin1@example.com", m.To[0])
