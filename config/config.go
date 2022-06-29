@@ -34,6 +34,7 @@ type Config struct {
 	SMTPEnforceStartTLS             bool     `envyname:"SMTP_ENFORCE_STARTTLS" default:"true"`
 	SMTPTLSSkipVerify               bool     `envyname:"SMTP_TLS_SKIP_VERIFY" default:"false"`
 	FromEmail                       string   `envyname:"FROM_EMAIL"`
+	AdminEmailNotificationsEnable   bool     `envyname:"ADMIN_EMAIL_NOTIFICATIONS_ENABLE" default:"true"`
 	NotificationAddresses           []string `envyname:"NOTIFICATION_ADDRESSES"`
 	AllowedDomains                  []string `envyname:"ALLOWED_DOMAINS"`
 	PasswordResetTimeframe          int      `envyname:"PASSWORD_RESET_TIMEFRAME" default:"2"`

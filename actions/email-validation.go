@@ -5,8 +5,8 @@ import (
 	"auri/config"
 	"auri/helpers"
 	"auri/logger"
-	"auri/mail"
 	"auri/models"
+	"auri/notifications"
 	"net/http"
 
 	"github.com/gobuffalo/buffalo"
@@ -40,11 +40,10 @@ func EmailValidationProcessRequest(c buffalo.Context) error {
 	tx.ValidateAndSave(&request)
 	logger.AuriLogger.Infof("Email validation: account request from email %v was succesfully valdiated", request.Email)
 
-	if err := mail.SendAdminNotification(request.Email, request.CommentField.String); err != nil {
+	if err := notifications.AdminNotificationNewRequest(request.Email, request.CommentField.String); err != nil {
 		apperror.InvokeError(c, apperror.MailError, err)
 		return c.Error(http.StatusBadRequest, err)
 	}
-	logger.AuriLogger.Info("Email validation: admins were successfully notified about new request")
 
 	return c.Render(http.StatusOK, r.HTML("account-request-mail-verified.plush.html", config.GetInstance().Layout))
 }
