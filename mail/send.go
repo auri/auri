@@ -99,3 +99,18 @@ func SendAdminRequestApprovedNotification(adminAccount, userEmail, comment strin
 		},
 	)
 }
+
+//SendAdminRequestDeclinedNotification sends the notification about rejection of some request
+func SendAdminRequestDeclinedNotification(adminAccount, userEmail, comment string) error {
+	return Send(
+		config.GetInstance().EmailSubjectAdminRequestDeclinedNotification,
+		config.GetInstance().AdminEmailNotificationAddresses,
+		"admin_request_processed.plush.html",
+		map[string]interface{}{
+			"finalState":   "declined",
+			"adminAccount": adminAccount,
+			"userEmail":    userEmail,
+			"comment":      comment,
+		},
+	)
+}

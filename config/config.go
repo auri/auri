@@ -49,6 +49,7 @@ type Config struct {
 	EmailSubjectMailValidation                   string   `envyname:"EMAIL_SUBJECT_MAIL_VALIDATION" default:"Validation of email address required"`
 	EmailSubjectAdminNewRequestNotification      string   `envyname:"EMAIL_SUBJECT_ADMIN_NEW_REQUEST_NOTIFICATION" default:"New account request"`
 	EmailSubjectAdminRequestApprovedNotification string   `envyname:"EMAIL_SUBJECT_ADMIN_REQUEST_APPROVED_NOTIFICATION" default:"Account request was approved"`
+	EmailSubjectAdminRequestDeclinedNotification string   `envyname:"EMAIL_SUBJECT_ADMIN_REQUEST_DECLINED_NOTIFICATION" default:"Account request was declined"`
 	AccountValidationTimeframe                   int      `envyname:"ACCOUNT_VALIDATION_TIMEFRAME" default:"48"`
 	IPAEnable                                    bool     `envyname:"IPA_ENABLE" default:"true"`
 	IPAHost                                      string   `envyname:"IPA_HOST"`

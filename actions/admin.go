@@ -156,5 +156,10 @@ func (v RequestResource) Destroy(c buffalo.Context) error {
 	logger.AuriLogger.Infof("Admin area: account request with email %v was removed", request.Email)
 	c.Flash().Add("danger", "Account request from "+request.Email+" was rejected, requester was notified")
 
+	if err := notifications.AdminNotificationRequestDeclined("admin", request.Email, request.CommentField.String); err != nil {
+		apperror.InvokeError(c, apperror.NotificationError, err)
+		return c.Redirect(http.StatusFound, "adminPath()")
+	}
+
 	return c.Redirect(http.StatusFound, "adminPath()")
 }
