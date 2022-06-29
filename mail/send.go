@@ -84,3 +84,18 @@ func SendAdminNewRequestNotification(userEmail, comment string) error {
 		},
 	)
 }
+
+//SendAdminRequestApprovedNotification sends the notification about approval of some request
+func SendAdminRequestApprovedNotification(adminAccount, userEmail, comment string) error {
+	return Send(
+		config.GetInstance().EmailSubjectAdminRequestApprovedNotification,
+		config.GetInstance().AdminEmailNotificationAddresses,
+		"admin_request_processed.plush.html",
+		map[string]interface{}{
+			"finalState":   "approved",
+			"adminAccount": adminAccount,
+			"userEmail":    userEmail,
+			"comment":      comment,
+		},
+	)
+}

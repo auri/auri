@@ -8,6 +8,7 @@ import (
 	"auri/logger"
 	"auri/mail"
 	"auri/models"
+	"auri/notifications"
 	"fmt"
 	"net/http"
 
@@ -117,6 +118,11 @@ func (v RequestResource) Update(c buffalo.Context) error {
 	}
 	logger.AuriLogger.Infof("Admin area: user %v(%v) was informed about approval of account request and requested to set authentication data", login, request.Email)
 	c.Flash().Add("success", "User "+login+"("+request.Email+") has been informed and requested to set authentication data")
+
+	if err := notifications.AdminNotificationRequestApproved("admin", request.Email, request.CommentField.String); err != nil {
+		apperror.InvokeError(c, apperror.NotificationError, err)
+		return c.Redirect(http.StatusFound, "adminPath()")
+	}
 
 	return c.Redirect(http.StatusFound, "adminPath()")
 }

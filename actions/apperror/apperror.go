@@ -14,16 +14,19 @@ const (
 	DBError
 	//MailError defines errors related to the mail dispatching
 	MailError
+	//NotificationError defines errors related to the notifications
+	NotificationError
 	//AuriError defines internal application error
 	AuriError
 )
 
 //errorPrefixes sets up the specifics of different mails with tokens
 var errorPrefixes = map[ErrorType]string{
-	IPAError:  "IPA",
-	DBError:   "Database",
-	MailError: "Mail dispatching",
-	AuriError: "Auri internal",
+	IPAError:          "IPA",
+	DBError:           "Database",
+	MailError:         "Mail dispatching",
+	NotificationError: "Notification",
+	AuriError:         "Auri internal",
 }
 
 //InvokeError logs the error and displays the generic error message to the user
