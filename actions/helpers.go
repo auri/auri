@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/pkg/errors"
-
 	"github.com/gobuffalo/buffalo/render"
 )
 
@@ -22,4 +21,15 @@ func getDBConnection(c buffalo.Context) (*pop.Connection, error) {
 		return nil, errors.New("no DB transaction found")
 	}
 	return tx, nil
+}
+
+//getLoggedInUser returns the user authenticated by upstream proxy server
+func getLoggedInUser(c buffalo.Context) string {
+	user := c.Request().Header.Get("REMOTE_USER")
+
+	if user == "" {
+		user = "unknown user"
+	}
+
+	return user
 }

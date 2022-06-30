@@ -57,6 +57,9 @@ func (v RequestResource) Update(c buffalo.Context) error {
 		return c.Error(400, err)
 	}
 
+	activeAdminUser := getLoggedInUser(c)
+	logger.AuriLogger.Infof("Admin area: account request from %v was approved by %v", request.Email, activeAdminUser)
+
 	// try to find a new unused login, max 5 tries
 	i := 0
 	var login string
@@ -119,7 +122,7 @@ func (v RequestResource) Update(c buffalo.Context) error {
 	logger.AuriLogger.Infof("Admin area: user %v(%v) was informed about approval of account request and requested to set authentication data", login, request.Email)
 	c.Flash().Add("success", "User "+login+"("+request.Email+") has been informed and requested to set authentication data")
 
-	if err := notifications.AdminNotificationRequestApproved("admin", request.Email, request.CommentField.String); err != nil {
+	if err := notifications.AdminNotificationRequestApproved(activeAdminUser, request.Email, request.CommentField.String); err != nil {
 		apperror.InvokeError(c, apperror.NotificationError, err)
 		return c.Redirect(http.StatusFound, "adminPath()")
 	}
@@ -143,6 +146,9 @@ func (v RequestResource) Destroy(c buffalo.Context) error {
 		return c.Error(400, err)
 	}
 
+	activeAdminUser := getLoggedInUser(c)
+	logger.AuriLogger.Infof("Admin area: account request from %v was declined by %v", request.Email, activeAdminUser)
+
 	if err := mail.SendDecline(request.Email); err != nil {
 		apperror.InvokeError(c, apperror.MailError, err)
 		return c.Redirect(http.StatusFound, "adminPath()")
@@ -156,7 +162,7 @@ func (v RequestResource) Destroy(c buffalo.Context) error {
 	logger.AuriLogger.Infof("Admin area: account request with email %v was removed", request.Email)
 	c.Flash().Add("danger", "Account request from "+request.Email+" was rejected, requester was notified")
 
-	if err := notifications.AdminNotificationRequestDeclined("admin", request.Email, request.CommentField.String); err != nil {
+	if err := notifications.AdminNotificationRequestDeclined(activeAdminUser, request.Email, request.CommentField.String); err != nil {
 		apperror.InvokeError(c, apperror.NotificationError, err)
 		return c.Redirect(http.StatusFound, "adminPath()")
 	}
