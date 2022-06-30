@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.0.10](https://github.com/auri/auri/tree/v0.0.10) (2022-06-30)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.9...v0.0.10)
+
+**Merged pull requests:**
+
+- Feature: notifications to admins for account approval/rejection [\#48](https://github.com/auri/auri/pull/48) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Feature: allow to specify the comment content [\#47](https://github.com/auri/auri/pull/47) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Config: dedicated option for email templates [\#46](https://github.com/auri/auri/pull/46) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Minor: template fix, no padding on the right side [\#45](https://github.com/auri/auri/pull/45) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Fix: mail templates [\#44](https://github.com/auri/auri/pull/44) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Dev env: new dev env based on Rancher [\#43](https://github.com/auri/auri/pull/43) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.9](https://github.com/auri/auri/tree/v0.0.9) (2022-06-14)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.8...v0.0.9)
