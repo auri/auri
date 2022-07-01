@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.11](https://github.com/auri/auri/tree/v0.0.11) (2022-07-01)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.10...v0.0.11)
+
+**Merged pull requests:**
+
+- Feature: log the admin handle for request processing [\#49](https://github.com/auri/auri/pull/49) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.10](https://github.com/auri/auri/tree/v0.0.10) (2022-06-30)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.9...v0.0.10)
