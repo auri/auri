@@ -148,6 +148,11 @@ ProxyPassReverse "/" http://localhost:3000/
   AuthLDAPBindDN "uid=auri,cn=users,cn=accounts,dc=example,dc=com"
   AuthLDAPBindPassword "PASSWORD"
   Require ldap-group cn=admins,cn=groups,cn=accounts,dc=example,dc=com
+
+  # we have to work with a look-ahead of mod_rewrite here to expose the header
+  RewriteEngine on
+  RewriteRule . - [E=REMOTE_USER:%{LA-U:REMOTE_USER}]
+  RequestHeader set REMOTE_USER %{REMOTE_USER}e
 </Location>
 
 </VirtualHost>
