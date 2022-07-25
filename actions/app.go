@@ -42,7 +42,13 @@ func App() *buffalo.App {
 			SessionName: "_auri_session",
 		})
 
-		app.SessionStore = sessions.NewCookieStore([]byte(conf.SessionSecret))
+		// hardening of cookies, non-persistent cookies, only available for http and https in production builds
+		cs := sessions.NewCookieStore([]byte(conf.SessionSecret))
+		cs.Options.MaxAge = 0
+		cs.Options.HttpOnly = true
+		cs.Options.SameSite = http.SameSiteStrictMode
+		cs.Options.Secure = config.IsProdBuild()
+		app.SessionStore = cs
 
 		// Log request parameters (filters apply).
 		app.Use(paramlogger.ParameterLogger)
