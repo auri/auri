@@ -36,6 +36,10 @@ type Config struct {
 	FromEmail                                    string   `envyname:"FROM_EMAIL"`
 	AdminEmailNotificationsEnable                bool     `envyname:"ADMIN_EMAIL_NOTIFICATIONS_ENABLE" default:"true"`
 	AdminEmailNotificationAddresses              []string `envyname:"ADMIN_EMAIL_NOTIFICATION_ADDRESSES"`
+	AdminShellNotificationsEnable                bool     `envyname:"ADMIN_SHELL_NOTIFICATIONS_ENABLE" default:"false"`
+	AdminShellNewRequest                         string   `envyname:"ADMIN_SHELL_NEW_REQUEST" default:""`
+	AdminShellRequestApproved                    string   `envyname:"ADMIN_SHELL_REQUEST_APPROVED" default:""`
+	AdminShellRequestDeclined                    string   `envyname:"ADMIN_SHELL_REQUEST_DECLINED" default:""`
 	AllowedDomains                               []string `envyname:"ALLOWED_DOMAINS"`
 	PasswordResetTimeframe                       int      `envyname:"PASSWORD_RESET_TIMEFRAME" default:"2"`
 	ProtectedGroups                              []string `envyname:"PROTECTED_GROUPS" default:""`

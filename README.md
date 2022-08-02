@@ -168,6 +168,53 @@ Auri binary provides several URL paths (routes) for different parts of it's func
 
 **Please keep in mind: `/admin` isn't protected, you have to setup a reverse proxy with some kind of protection!**
 
+## Notifications and admin hooks
+
+Auri provides several notification ways for admins. First notification way are the email notifications: see `ADMIN_EMAIL_NOTIFICATIONS_ENABLE` in the config file for details.
+
+Second notification way is via shell hooks, which get executed for occurring events. There is following environment information available for hooks:
+
+ - `HOOK_TYPE`: `NEW_REQUEST`, `REQUEST_APPROVED` or `REQUEST_DECLINED`
+ - `REQUEST_EMAIL`: email address of requester
+ - `REQUEST_COMMENT`: comment for account request (if available)
+ - `ADMIN_USER`: admin user, who performed the action (if available)
+
+See `ADMIN_SHELL_NOTIFICATIONS_ENABLE` in the config file for according configuration.
+
+Following shell script can be used as slack notification about the events:
+
+```bash
+#!/bin/sh
+
+SLACK_URL="https://hooks.slack.com/XXXXXXX"
+AURI_ADMIN_URL="https://auri.example.com/admin/"
+
+function post_to_slack () {
+  SLACK_MESSAGE="$1"
+
+  export HTTPS_PROXY="http://proxy.example.com:3128" # if you need it
+  curl -X POST --data "payload={\"text\": \":closed_lock_with_key: ${SLACK_MESSAGE}\"}" ${SLACK_URL}
+}
+
+case "$HOOK_TYPE" in
+  NEW_REQUEST)
+    post_to_slack ":wave: New account request from ${REQUEST_EMAIL} with following comment: ${REQUEST_COMMENT}\n Please proceed the request via admin interface of auri: ${AURI_ADMIN_URL}"
+    ;;
+  REQUEST_APPROVED)
+    post_to_slack ":white_check_mark: Account request from ${REQUEST_EMAIL} was approved by ${ADMIN_USER}"
+    ;;
+  REQUEST_DECLINED)
+    post_to_slack ":no_entry: Account request from ${REQUEST_EMAIL} was declined by ${ADMIN_USER}"
+    ;;
+  *)
+    echo "Wrong hook type: $HOOK_TYPE"
+    exit 1
+    ;;
+esac
+
+exit 0
+```
+
 ## Tasks
 
 Auri binary provides several maintenance tasks, see `auri --help` and `auri task list` for more details.
