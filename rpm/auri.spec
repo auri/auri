@@ -4,7 +4,7 @@ Release:        0
 Summary:        AURI provides a self-service interface for account creation for FreeIPA
 
 License:        MIT
-URL:            https://example.com}
+URL:            https://github.com/auri/auri
 Source0:        auri.tgz
 
 %description
@@ -27,24 +27,26 @@ install -m 644 %{name}.service %{buildroot}/lib/systemd/system
 
 %post
 sed -i "s/# SESSION_SECRET=/\SESSION_SECRET=$(openssl rand -hex 30)/" %{_sysconfdir}/%{name}/config.env
-systemctl daemon-reload
+
+if [ $1 -eq 1 ] ; then #initial installation
+  systemctl preset %{name}.service
+fi
 
 # try to upgrade the DB scheme in case of upgrades
 if [ $1 -eq 2 ]; then
-    auri migrate || (echo "Failed to upgrade the DB scheme, is Auri properly configured and the database is reachable?" && exit 1)
+  %{name} migrate || (echo "Failed to upgrade the DB scheme, is %{name} properly configured and the database is reachable?" && exit 1)
 fi
 
 %preun
 if [ $1 == 0 ]; then #uninstall
-  systemctl unmask %{name}.service
+  systemctl --no-reload disable %{name}.service
   systemctl stop %{name}.service
-  systemctl disable %{name}.service
 fi
 
 %postun
-if [ $1 == 0 ]; then #uninstall
-  systemctl daemon-reload
-  systemctl reset-failed
+systemctl daemon-reload
+if [ $1 -ge 1 ]; then #upgrade, not uninstall
+  systemctl try-restart %{name}.service
 fi
 
 %files
