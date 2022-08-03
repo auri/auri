@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.0.12](https://github.com/auri/auri/tree/v0.0.12) (2022-08-03)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.11...v0.0.12)
+
+**Merged pull requests:**
+
+- RPM: include logrotate settings for auri logs [\#56](https://github.com/auri/auri/pull/56) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Run auri under the dedicated daemon user [\#55](https://github.com/auri/auri/pull/55) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go update to 1.18.5 [\#54](https://github.com/auri/auri/pull/54) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- RPM: use the systemd code for rpm routines [\#53](https://github.com/auri/auri/pull/53) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Feature: shell hooks for workflow events  [\#52](https://github.com/auri/auri/pull/52) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Session cookie: hardening [\#51](https://github.com/auri/auri/pull/51) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go: update to 1.18.4 [\#50](https://github.com/auri/auri/pull/50) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.11](https://github.com/auri/auri/tree/v0.0.11) (2022-07-01)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.10...v0.0.11)
