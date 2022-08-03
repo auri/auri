@@ -1,0 +1,9 @@
+/var/log/auri/*log {
+    missingok
+    notifempty
+    sharedscripts
+    delaycompress
+    postrotate
+        /bin/systemctl try-restart auri.service > /dev/null 2>/dev/null || true
+    endscript
+}

@@ -27,6 +27,9 @@ install -m 600 config.env %{buildroot}/%{_sysconfdir}/%{name}
 install -m 600 database.yml %{buildroot}/%{_sysconfdir}/%{name}
 install -m 644 %{name}.service %{buildroot}/lib/systemd/system
 
+mkdir -p %{buildroot}/%{_sysconfdir}/logrotate.d
+install -m 644 logrotate %{buildroot}/%{_sysconfdir}/logrotate.d/%{name}
+
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
 getent passwd %{name} >/dev/null || useradd -r -g %{name} -d %{_localstatedir}/lib/%{name} -s /sbin/nologin -c "Auri daemon" %{name}
@@ -60,6 +63,7 @@ fi
 /lib/systemd/system/
 
 %attr(0640,root,%{name}) %config(noreplace) %{_sysconfdir}/%{name}/*
+%attr(0644,root,%{name}) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %attr(0750,%{name},%{name}) %dir %{_localstatedir}/lib/%{name}
 %attr(0750,%{name},%{name}) %dir %{_localstatedir}/log/%{name}
 
