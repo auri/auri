@@ -25,6 +25,10 @@ install -m 600 config.env %{buildroot}/%{_sysconfdir}/%{name}
 install -m 600 database.yml %{buildroot}/%{_sysconfdir}/%{name}
 install -m 644 %{name}.service %{buildroot}/lib/systemd/system
 
+%pre
+getent group %{name} >/dev/null || groupadd -r %{name}
+getent passwd %{name} >/dev/null || useradd -r -g %{name} -d /dev/null -s /sbin/nologin -c "Auri daemon" %{name}
+
 %post
 sed -i "s/# SESSION_SECRET=/\SESSION_SECRET=$(openssl rand -hex 30)/" %{_sysconfdir}/%{name}/config.env
 
@@ -53,7 +57,7 @@ fi
 %{_bindir}/%{name}
 /lib/systemd/system/
 
-%config(noreplace) %{_sysconfdir}/%{name}/*
+%attr(0640,root,%{name}) %config(noreplace) %{_sysconfdir}/%{name}/*
 
 %clean
 rm -rf %{_builddir}

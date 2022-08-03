@@ -3,8 +3,8 @@ Description=auri
 
 [Service]
 ExecStart=/usr/bin/auri
-User=root
-Group=root
+User=auri
+Group=auri
 UMask=007
 
 [Install]
