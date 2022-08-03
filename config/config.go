@@ -66,6 +66,6 @@ type Config struct {
 	AccountCheckTimeframe                        int      `envyname:"ACCOUNT_CHECK_TIMEFRAME" default:"6"`
 	AccountCheckReminderAfter                    int      `envyname:"ACCOUNT_CHECK_REMINDER_AFTER" default:"2"`
 	AccountCheckMaxReminders                     int      `envyname:"ACCOUNT_CHECK_MAX_REMINDERS" default:"1"`
-	LogIPA                                       string   `envyname:"LOG_IPA" default:"/var/log/auri-ipa.log"`
-	LogAuri                                      string   `envyname:"LOG_AURI" default:"/var/log/auri.log"`
+	LogIPA                                       string   `envyname:"LOG_IPA" default:"/var/log/auri/ipa.log"`
+	LogAuri                                      string   `envyname:"LOG_AURI" default:"/var/log/auri/auri.log"`
 }
