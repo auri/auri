@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.0.13](https://github.com/auri/auri/tree/v0.0.13) (2023-01-06)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.12...v0.0.13)
+
+**Merged pull requests:**
+
+- Making revive linter happy [\#58](https://github.com/auri/auri/pull/58) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go: update to 1.19.4 [\#57](https://github.com/auri/auri/pull/57) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.12](https://github.com/auri/auri/tree/v0.0.12) (2022-08-03)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.11...v0.0.12)
