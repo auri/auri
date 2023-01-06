@@ -6,8 +6,8 @@
 # defaults for environment vars
 ENV['AURI_POSTGRES_PORT'] ||= '5432'
 ENV['AURI_BUFFALO_PORT'] ||= '3000'
-ENV['AURI_GO_VERSION'] ||= '1.17.2'
-ENV['AURI_BUFFALO_VERSION'] ||= '0.17.1'
+ENV['AURI_GO_VERSION'] ||= '1.19.4'
+ENV['AURI_BUFFALO_VERSION'] ||= '0.18.4'
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'bento/centos-7'
