@@ -1,3 +1,4 @@
+// Package actions provides the main gobuffalo application logic
 package actions
 
 import (

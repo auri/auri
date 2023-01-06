@@ -1,3 +1,4 @@
+// Package ipaclient provides internal interface to freeipa
 package ipaclient
 
 import (

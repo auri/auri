@@ -1,3 +1,4 @@
+// Package models provides models to deal with data of gobuffalo application
 package models
 
 import (

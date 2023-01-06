@@ -1,3 +1,4 @@
+// Package mail contains templates for email notifications
 package mail
 
 import (
