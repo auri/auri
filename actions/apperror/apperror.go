@@ -1,3 +1,4 @@
+// Package apperror provides logic for handling of application errors
 package apperror
 
 import (

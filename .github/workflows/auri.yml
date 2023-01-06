@@ -33,7 +33,7 @@ jobs:
 
       - name: setup environment
         run: |
-          go install github.com/mgechev/revive@latest
+          go install github.com/mgechev/revive@v1.2.4
       - name: linting
         run: revive -config revive.toml -formatter stylish $(go list ./... | grep -v /vendor/)
 

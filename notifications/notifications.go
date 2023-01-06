@@ -1,3 +1,4 @@
+// Package notifications implements notifications
 package notifications
 
 import (

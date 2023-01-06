@@ -1,3 +1,4 @@
+// Package mail provides interfaces to send our mails from auri
 package mail
 
 import (

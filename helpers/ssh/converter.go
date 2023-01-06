@@ -1,3 +1,4 @@
+// Package ssh contains different helpers to deal with ssh keys (convert them or determine key types and length)
 package ssh
 
 import (

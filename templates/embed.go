@@ -1,3 +1,4 @@
+// Package templates contains html templates for auri
 package templates
 
 import (

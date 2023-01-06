@@ -1,3 +1,4 @@
+// Package public contains embedded assets of our application
 package public
 
 import (
