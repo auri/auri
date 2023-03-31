@@ -29,13 +29,13 @@ jobs:
           fi
       - name: get the new tag
         id: new_tag
-        run: echo "::set-output name=tag::v${{ github.event.inputs.version }}"
-      - uses: actions/checkout@v2
+        run: echo "tag=v${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: get last tag information
         id: last_tag
-        run: echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1 ))"
+        run: echo "tag=$(git describe --tags $(git rev-list --tags --max-count=1 ))" >> $GITHUB_OUTPUT
 
   generate-changelog:
     runs-on: ubuntu-latest
@@ -50,9 +50,10 @@ jobs:
       - name: Generate full changelog for repository
         uses: charmixer/auto-changelog-action@v1
         with:
-          future_release: ${{ needs.version-info.outputs.new_tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v2
+          future_release: ${{ needs.version-info.outputs.new_tag }}
+          exclude_labels: duplicate,question,invalid,wontfix,release
+      - uses: actions/upload-artifact@v3
         with:
           name: CHANGELOG.md
           path: CHANGELOG.md
@@ -60,50 +61,54 @@ jobs:
         uses: charmixer/auto-changelog-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          since_tag: ${{ needs.version-info.outputs.last_tag }}
           future_release: ${{ needs.version-info.outputs.new_tag }}
+          exclude_labels: duplicate,question,invalid,wontfix,release
+          since_tag: ${{ needs.version-info.outputs.last_tag }}
           output: 'CHANGELOGRELEASE.md'
       - name: Read the release changelog
         id: release_changelog
         run: |
           OUTPUT="$(cat CHANGELOGRELEASE.md)"
-          # https://github.community/t/set-output-truncates-multiline-strings/16852/5
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=content::$OUTPUT"
+          # https://github.com/orgs/community/discussions/26288#discussioncomment-3876281
+          delimiter="$(openssl rand -hex 8)"
+          echo "content<<${delimiter}" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> "$GITHUB_OUTPUT"
 
-  commit-changelog:
+  release-pull-request:
     runs-on: ubuntu-latest
     needs:
       - generate-changelog
       - version-info
     permissions:
       contents: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.AURI_BOT_PAT }}
-      - uses: actions/download-artifact@v2
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
         with:
           name: CHANGELOG.md
       - name: Commit changelog and push it
         id: commit-and-push
-        env:
-          GITHUB_TOKEN: ${{ secrets.AURI_BOT_PAT }}
         run: |
+          git checkout -b release/${{ needs.version-info.outputs.new_tag }}
           git config user.name "GitHub Actions"
           git config user.email noreply@github.com
           git add CHANGELOG.md
-          git commit -m 'Changelog update ${{ needs.version-info.outputs.new_tag }}'
-          echo "::set-output name=commit::$(git rev-parse HEAD)"
-          git pull --rebase
-          git push
+          git commit -m 'Changelog update ${{ needs.version-info.outputs.new_tag }}' -s
+          echo "commit=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          git push origin release/${{ needs.version-info.outputs.new_tag }}
           git tag ${{ needs.version-info.outputs.new_tag }}
           git push origin ${{ needs.version-info.outputs.new_tag }}
-      - name: Create a new release
+      - name: create pull request and auto merge it
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          url=$(gh pr create -b "${{ needs.generate-changelog.outputs.release_changelog }}" -t "Release ${{ needs.version-info.outputs.new_tag }}" -l release | grep -F 'https://github.com' )
+          gh pr merge $url --auto -m
+      - name: create a new release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.version-info.outputs.new_tag }}
