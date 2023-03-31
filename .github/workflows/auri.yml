@@ -4,8 +4,13 @@ on:
   push:
     branches:
       - '*'
-    tags:
-      - 'v*.*.*'
+  pull_request:
+    types:
+      - opened
+    branches:
+      - master
+    paths:
+      - CHANGELOG.md
 
 # unfortunately there is no way to reuse job init steps :-(
 # https://stackoverflow.com/questions/65242830/in-a-github-actions-workflow-is-there-a-way-to-have-multiple-jobs-reuse-the-sam
@@ -196,7 +201,7 @@ jobs:
           path: rpmbuild/RPMS/x86_64/*.rpm
 
   upload-release-assets:
-    if: github.repository == 'auri/auri' && startsWith(github.ref, 'refs/tags/')
+    if: github.repository == 'artem-experiments/auri' && startsWith(github.head_ref, 'release/v')
     runs-on: ubuntu-latest
     needs:
       - build-rpm
@@ -223,7 +228,7 @@ jobs:
             auri-binary-linux-x86_64
 
   upload-rpm:
-    if: github.repository == 'auri/auri' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/'))
+    if: github.repository == 'artem-experiments/auri' && (github.ref == 'refs/heads/master' || startsWith(github.head_ref, 'release/v'))
     runs-on: ubuntu-latest
     needs:
       - build-data
@@ -247,3 +252,33 @@ jobs:
           EOF
       - name: upload source rpm
         run: copr-cli build --nowait ${{ needs.build-data.outputs.upload_target }} *.src.rpm
+
+  pass-all-jobs:
+    if: github.repository != 'artem-experiments/auri' || !startsWith(github.head_ref, 'release/v')
+    needs:
+    - linting
+    - unit-tests
+    - build-rpm
+    - build-binary
+    runs-on: ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
+
+  pass-all-jobs-release:
+    if: github.repository == 'artem-experiments/auri' && startsWith(github.head_ref, 'release/v')
+    needs:
+    - linting
+    - unit-tests
+    - build-rpm
+    - build-binary
+    - upload-release-assets
+    - upload-rpm
+    runs-on: ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
