@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.0.14](https://github.com/auri/auri/tree/v0.0.14) (2023-03-31)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.13...v0.0.14)
+
+**Merged pull requests:**
+
+- Update of some go dependencies due to security releases [\#63](https://github.com/auri/auri/pull/63) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- Go update to 1.20.2 [\#62](https://github.com/auri/auri/pull/62) ([artem-sidorenko](https://github.com/artem-sidorenko))
+- CI: new release process [\#61](https://github.com/auri/auri/pull/61) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.13](https://github.com/auri/auri/tree/v0.0.13) (2023-01-06)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.12...v0.0.13)
