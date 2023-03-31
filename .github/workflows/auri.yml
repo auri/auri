@@ -254,7 +254,7 @@ jobs:
         run: copr-cli build --nowait ${{ needs.build-data.outputs.upload_target }} *.src.rpm
 
   pass-all-jobs:
-    if: github.repository != 'artem-experiments/auri' || !startsWith(github.head_ref, 'release/v')
+    if: '!(github.repository == "artem-experiments/auri" && startsWith(github.head_ref, "release/v")) && always()'
     needs:
     - linting
     - unit-tests
@@ -268,7 +268,7 @@ jobs:
         jobs: ${{ toJSON(needs) }}
 
   pass-all-jobs-release:
-    if: github.repository == 'artem-experiments/auri' && startsWith(github.head_ref, 'release/v')
+    if: github.repository == "artem-experiments/auri" && startsWith(github.head_ref, "release/v") && always()
     needs:
     - linting
     - unit-tests
