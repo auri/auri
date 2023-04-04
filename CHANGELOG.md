@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.15](https://github.com/auri/auri/tree/v0.0.15) (2023-04-04)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.14...v0.0.15)
+
+**Merged pull requests:**
+
+- README: different repos for different EL major versions [\#67](https://github.com/auri/auri/pull/67) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.14](https://github.com/auri/auri/tree/v0.0.14) (2023-03-31)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.13...v0.0.14)
