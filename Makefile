@@ -3,6 +3,10 @@
 .PHONY: test build
 .DEFAULT_GOAL := help
 VERSION ?= $$(git describe --tags --dirty)
+# disable cgo because of glibc dependency issues
+# - https://stackoverflow.com/a/72518051
+# - https://stackoverflow.com/questions/64531437/why-is-cgo-enabled-1-default
+export CGO_ENABLED = 0
 
 test: ## Run the tests
 	mkdir -p cover
