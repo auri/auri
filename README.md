@@ -40,9 +40,15 @@ Install and configure PostgreSQL (see [this](https://www.digitalocean.com/commun
 Use the [Fedora COPR repository](https://copr.fedorainfracloud.org/coprs/auri/releases/) for auri installation:
 
 ```bash
+# on EL7
+$ wget -O /etc/yum.repos.d/auri.repo \
+       https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-7/auri-releases-epel-7.repo
+# on EL8
 $ wget -O /etc/yum.repos.d/auri.repo \
        https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-8/auri-releases-epel-8.repo
-# on EL7
+# on EL9
+$ wget -O /etc/yum.repos.d/auri.repo \
+       https://copr.fedorainfracloud.org/coprs/auri/releases/repo/epel-9/auri-releases-epel-9.repo
 $ yum install auri
 # on EL8 and Fedoro
 $ dnf install auri
