@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.17](https://github.com/auri/auri/tree/v0.0.17) (2023-06-20)
+
+[Full Changelog](https://github.com/auri/auri/compare/v0.0.16...v0.0.17)
+
+**Merged pull requests:**
+
+- Go update to 1.20.5 [\#71](https://github.com/auri/auri/pull/71) ([artem-sidorenko](https://github.com/artem-sidorenko))
+
 ## [v0.0.16](https://github.com/auri/auri/tree/v0.0.16) (2023-04-04)
 
 [Full Changelog](https://github.com/auri/auri/compare/v0.0.15...v0.0.16)
