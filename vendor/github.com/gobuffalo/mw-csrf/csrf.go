@@ -28,7 +28,6 @@ var (
 
 	// Idempotent (safe) methods as defined by RFC7231 section 4.2.2.
 	safeMethods = []string{"GET", "HEAD", "OPTIONS", "TRACE"}
-	htmlTypes   = []string{"html", "form", "plain", "*/*"}
 )
 
 var (
@@ -48,23 +47,17 @@ var (
 // New enable CSRF protection on routes using this middleware.
 // This middleware is adapted from gorilla/csrf
 var New = func(next buffalo.Handler) buffalo.Handler {
-	return func(c buffalo.Context) error {
-		// don't run in test mode
-		if envy.Get("GO_ENV", "development") == "test" {
+	// don't run the actual middleware in test mode
+	if envy.Get("GO_ENV", "development") == "test" {
+		return func(c buffalo.Context) error {
+			c.Logger().Warn("csrf middleware is running in test mode")
 			c.Set(tokenKey, "test")
 			return next(c)
 		}
+	}
 
+	return func(c buffalo.Context) error {
 		req := c.Request()
-
-		ct := req.Header.Get("Content-Type")
-		if len(ct) == 0 {
-			ct = req.Header.Get("Accept")
-		}
-		// ignore non-html requests
-		if ct != "" && !contains(htmlTypes, ct) {
-			return next(c)
-		}
 
 		var realToken []byte
 		var err error
@@ -97,11 +90,11 @@ var New = func(next buffalo.Handler) buffalo.Handler {
 				// otherwise fails to parse.
 				referer, err := url.Parse(req.Referer())
 				if err != nil || referer.String() == "" {
-					return ErrNoReferer
+					return c.Error(http.StatusForbidden, ErrNoReferer)
 				}
 
 				if !sameOrigin(req.URL, referer) {
-					return ErrBadReferer
+					return c.Error(http.StatusForbidden, ErrBadReferer)
 				}
 			}
 
@@ -110,12 +103,12 @@ var New = func(next buffalo.Handler) buffalo.Handler {
 
 			// Missing token
 			if requestToken == nil {
-				return ErrNoToken
+				return c.Error(http.StatusForbidden, ErrNoToken)
 			}
 
 			// Compare tokens
 			if !compareTokens(requestToken, realToken) {
-				return ErrBadToken
+				return c.Error(http.StatusForbidden, ErrBadToken)
 			}
 		}
 
@@ -216,8 +209,8 @@ func unmask(issued []byte) []byte {
 	}
 
 	// We now know the length of the byte slice.
-	otp := issued[tokenLength:]
-	masked := issued[:tokenLength]
+	otp := issued[:tokenLength]
+	masked := issued[tokenLength:]
 
 	// Unmask the token by XOR'ing it against the OTP used to mask it.
 	return xorToken(otp, masked)

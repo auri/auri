@@ -2,18 +2,18 @@ package plugdeps
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/meta"
-	"github.com/karrick/godirwalk"
 )
 
 // ErrMissingConfig is if config/buffalo-plugins.toml file is not found. Use plugdeps#On(app) to test if plugdeps are being used
 var ErrMissingConfig = fmt.Errorf("could not find a buffalo-plugins config file at %s", ConfigPath(meta.New(".")))
 
-// List all of the plugins the application depeneds on. Will return ErrMissingConfig
+// List all of the plugins the application depends on. Will return ErrMissingConfig
 // if the app is not using config/buffalo-plugins.toml to manage their plugins.
 // Use plugdeps#On(app) to test if plugdeps are being used.
 func List(app meta.App) (*Plugins, error) {
@@ -46,25 +46,23 @@ func List(app meta.App) (*Plugins, error) {
 
 func listLocal(app meta.App) (*Plugins, error) {
 	plugs := New()
-	proot := filepath.Join(app.Root, "plugins")
-	if _, err := os.Stat(proot); err != nil {
+	pRoot := filepath.Join(app.Root, "plugins")
+	if _, err := os.Stat(pRoot); err != nil {
 		return plugs, nil
 	}
-	err := godirwalk.Walk(proot, &godirwalk.Options{
-		FollowSymbolicLinks: true,
-		Callback: func(path string, info *godirwalk.Dirent) error {
-			if info.IsDir() {
-				return nil
-			}
-			base := filepath.Base(path)
-			if strings.HasPrefix(base, "buffalo-") {
-				plugs.Add(Plugin{
-					Binary: base,
-					Local:  "." + strings.TrimPrefix(path, app.Root),
-				})
-			}
+	err := filepath.WalkDir(pRoot, func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
 			return nil
-		},
+		}
+		if !strings.HasPrefix(d.Name(), "buffalo-") {
+			return nil
+		}
+
+		plugs.Add(Plugin{
+			Binary: d.Name(),
+			Local:  "." + strings.TrimPrefix(path, app.Root),
+		})
+		return nil
 	})
 	if err != nil {
 		return plugs, err

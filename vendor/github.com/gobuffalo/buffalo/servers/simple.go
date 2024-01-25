@@ -2,6 +2,7 @@ package servers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
@@ -15,6 +16,11 @@ func (s *Simple) SetAddr(addr string) {
 	if s.Server.Addr == "" {
 		s.Server.Addr = addr
 	}
+}
+
+// String returns a string representation of a Simple server
+func (s *Simple) String() string {
+	return fmt.Sprintf("simple server on %s", s.Server.Addr)
 }
 
 // Start the server
