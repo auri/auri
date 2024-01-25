@@ -1,17 +1,19 @@
 # mw-csrf
 
-[![](https://github.com/gobuffalo/mw-csrf/workflows/Tests/badge.svg)](https://github.com/gobuffalo/mw-csrf/actions)
-[![GoDoc](https://godoc.org/github.com/gobuffalo/mw-csrf?status.svg)](https://godoc.org/github.com/gobuffalo/mw-csrf)
+[![Standard Test](https://github.com/gobuffalo/mw-csrf/actions/workflows/standard-go-test.yml/badge.svg)](https://github.com/gobuffalo/mw-csrf/actions/workflows/standard-go-test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/gobuffalo/mw-csrf.svg)](https://pkg.go.dev/github.com/gobuffalo/mw-csrf)
 
 ### Requirements
 
-* Go 1.13+
+* Go 1.16+ but 1.17 and 1.18 are officially supported
 * Go Modules
 
 ### Installation
 
 ```bash
-$ go get github.com/gobuffalo/mw-csrf/cmd/mw-csrf
+$ go get github.com/gobuffalo/mw-csrf
 ```
 
----
+### Official Middleware Documentation
+
+* https://gobuffalo.io/documentation/request_handling/middleware/

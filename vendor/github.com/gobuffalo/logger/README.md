@@ -2,9 +2,7 @@
 
 <p align="center">
 <a href="https://godoc.org/github.com/gobuffalo/logger"><img src="https://godoc.org/github.com/gobuffalo/logger?status.svg" alt="GoDoc" /></a>
-
-![Tests](https://github.com/gobuffalo/logger/actions/workflows/tests.yml/badge.svg)
-
+<a href="https://github.com/gobuffalo/logger/actions"><img src="https://github.com/gobuffalo/logger/actions/workflows/tests.yml/badge.svg" alt="Build status" /></a>
 <a href="https://goreportcard.com/report/github.com/gobuffalo/logger"><img src="https://goreportcard.com/badge/github.com/gobuffalo/logger" alt="Go Report Card" /></a>
 </p>
 

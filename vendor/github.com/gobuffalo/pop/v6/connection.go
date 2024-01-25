@@ -2,13 +2,17 @@ package pop
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"math/rand"
+	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/gobuffalo/pop/v6/internal/defaults"
 	"github.com/gobuffalo/pop/v6/internal/randx"
+	"github.com/gobuffalo/pop/v6/logging"
 )
 
 // Connections contains all available connections
@@ -61,9 +65,8 @@ func NewConnection(deets *ConnectionDetails) (*Connection, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Connection{
-		ID: randx.String(30),
-	}
+	c := &Connection{}
+	c.setID()
 
 	if nc, ok := newConnection[deets.Dialect]; ok {
 		c.Dialect, err = nc(deets)
@@ -143,6 +146,7 @@ func (c *Connection) Close() error {
 	if err := c.Store.Close(); err != nil {
 		return fmt.Errorf("couldn't close connection: %w", err)
 	}
+	c.Store = nil
 	return nil
 }
 
@@ -150,21 +154,37 @@ func (c *Connection) Close() error {
 // returns an error then the transaction will be rolled back, otherwise the transaction
 // will automatically commit at the end.
 func (c *Connection) Transaction(fn func(tx *Connection) error) error {
-	return c.Dialect.Lock(func() error {
+	return c.Dialect.Lock(func() (err error) {
 		var dberr error
+
 		cn, err := c.NewTransaction()
 		if err != nil {
 			return err
 		}
+		txlog(logging.SQL, cn, "BEGIN Transaction ---")
+
+		defer func() {
+			if ex := recover(); ex != nil {
+				txlog(logging.SQL, cn, "ROLLBACK Transaction (inner function panic) ---")
+				dberr = cn.TX.Rollback()
+				if dberr != nil {
+					txlog(logging.Error, cn, "database error while inner panic rollback: %w", dberr)
+				}
+				panic(ex)
+			}
+		}()
+
 		err = fn(cn)
 		if err != nil {
+			txlog(logging.SQL, cn, "ROLLBACK Transaction ---")
 			dberr = cn.TX.Rollback()
 		} else {
+			txlog(logging.SQL, cn, "END Transaction ---")
 			dberr = cn.TX.Commit()
 		}
 
 		if dberr != nil {
-			return fmt.Errorf("error committing or rolling back transaction: %w", dberr)
+			return fmt.Errorf("database error on committing or rolling back transaction: %w", dberr)
 		}
 
 		return err
@@ -175,34 +195,42 @@ func (c *Connection) Transaction(fn func(tx *Connection) error) error {
 // Rollback will open a new transaction and automatically rollback that transaction
 // when the inner function returns, regardless. This can be useful for tests, etc...
 func (c *Connection) Rollback(fn func(tx *Connection)) error {
+	// TODO: the name of the method could be changed to express it better.
 	cn, err := c.NewTransaction()
 	if err != nil {
 		return err
 	}
+	txlog(logging.SQL, cn, "BEGIN Transaction for Rollback ---")
 	fn(cn)
+	txlog(logging.SQL, cn, "ROLLBACK Transaction as planned ---")
 	return cn.TX.Rollback()
 }
 
 // NewTransaction starts a new transaction on the connection
 func (c *Connection) NewTransaction() (*Connection, error) {
+	return c.NewTransactionContextOptions(c.Context(), nil)
+}
+
+// NewTransactionContext starts a new transaction on the connection using the provided context
+func (c *Connection) NewTransactionContext(ctx context.Context) (*Connection, error) {
+	return c.NewTransactionContextOptions(ctx, nil)
+}
+
+// NewTransactionContextOptions starts a new transaction on the connection using the provided context and transaction options
+func (c *Connection) NewTransactionContextOptions(ctx context.Context, options *sql.TxOptions) (*Connection, error) {
 	var cn *Connection
 	if c.TX == nil {
-		tx, err := c.Store.Transaction()
+		tx, err := c.Store.TransactionContextOptions(ctx, options)
 		if err != nil {
 			return cn, fmt.Errorf("couldn't start a new transaction: %w", err)
 		}
-		var store store = tx
 
-		// Rewrap the store if it was a context store
-		if cs, ok := c.Store.(contextStore); ok {
-			store = contextStore{store: store, ctx: cs.ctx}
-		}
 		cn = &Connection{
-			ID:      randx.String(30),
-			Store:   store,
+			Store:   contextStore{store: tx, ctx: ctx},
 			Dialect: c.Dialect,
 			TX:      tx,
 		}
+		cn.setID()
 	} else {
 		cn = c
 	}
@@ -220,12 +248,18 @@ func (c *Connection) WithContext(ctx context.Context) *Connection {
 }
 
 func (c *Connection) copy() *Connection {
-	return &Connection{
-		ID:      randx.String(30),
+	// TODO: checkme. it copies and creates a new Connection (and a new ID)
+	// with the same TX which could make confusions and complexity in usage.
+	// related PRs: #72/#73, #79/#80, and #497
+
+	cn := &Connection{
 		Store:   c.Store,
 		Dialect: c.Dialect,
 		TX:      c.TX,
 	}
+	cn.setID(c.ID) // ID of the source as a seed
+
+	return cn
 }
 
 // Q creates a new "empty" query for the current connection.
@@ -235,8 +269,13 @@ func (c *Connection) Q() *Query {
 
 // disableEager disables eager mode for current connection.
 func (c *Connection) disableEager() {
-	c.eager = false
-	c.eagerFields = []string{}
+	// The check technically is not required, because (*Connection).Eager() creates a (shallow) copy.
+	// When not reusing eager connections, this should be safe.
+	// However, this write triggers the go race detector.
+	if c.eager {
+		c.eager = false
+		c.eagerFields = []string{}
+	}
 }
 
 // TruncateAll truncates all data from the datasource
@@ -252,4 +291,33 @@ func (c *Connection) timeFunc(name string, fn func() error) error {
 		return err
 	}
 	return nil
+}
+
+// setID sets a unique ID for a Connection in a specific format indicating the
+// Connection type, TX.ID, and optionally a copy ID. It makes it easy to trace
+// related queries for a single request.
+//
+//  examples: "conn-7881415437117811350", "tx-4924907692359316530", "tx-831769923571164863-ytzxZa"
+func (c *Connection) setID(id ...string) {
+	if len(id) == 1 {
+		idElems := strings.Split(id[0], "-")
+		l := 2
+		if len(idElems) < 2 {
+			l = len(idElems)
+		}
+		prefix := strings.Join(idElems[0:l], "-")
+		body := randx.String(6)
+
+		c.ID = fmt.Sprintf("%s-%s", prefix, body)
+	} else {
+		prefix := "conn"
+		body := rand.Int()
+
+		if c.TX != nil {
+			prefix = "tx"
+			body = c.TX.ID
+		}
+
+		c.ID = fmt.Sprintf("%s-%d", prefix, body)
+	}
 }

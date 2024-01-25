@@ -1,7 +1,8 @@
 github_flavored_markdown
 ========================
 
-[![Build Status](https://travis-ci.org/gobuffalo/github_flavored_markdown.svg?branch=master)](https://travis-ci.org/gobuffalo/github_flavored_markdown) [![GoDoc](https://godoc.org/github.com/gobuffalo/github_flavored_markdown?status.svg)](https://godoc.org/github.com/gobuffalo/github_flavored_markdown)
+[![Standard Test](https://github.com/gobuffalo/github_flavored_markdown/actions/workflows/standard-go-test.yml/badge.svg)](https://github.com/gobuffalo/github_flavored_markdown/actions/workflows/standard-go-test.yml)
+[![GoDoc](https://godoc.org/github.com/gobuffalo/github_flavored_markdown?status.svg)](https://godoc.org/github.com/gobuffalo/github_flavored_markdown)
 
 Package github_flavored_markdown provides a GitHub Flavored Markdown renderer
 with fenced code block highlighting, clickable heading anchor links.
@@ -16,7 +17,7 @@ Installation
 ------------
 
 ```bash
-go get -u github.com/gobuffalo/github_flavored_markdown
+go get github.com/gobuffalo/github_flavored_markdown
 ```
 
 Directories
@@ -24,9 +25,9 @@ Directories
 
 | Path                                                                                | Synopsis                                                                     |
 |-------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [gfmstyle](https://godoc.org/github.com/gobuffalo/github_flavored_markdown/gfmstyle) | Package gfmstyle contains CSS styles for rendering GitHub Flavored Markdown. |
+| [gfmstyle](https://pkg.go.dev/github.com/gobuffalo/github_flavored_markdown/gfmstyle) | Package gfmstyle contains CSS styles for rendering GitHub Flavored Markdown. |
 
 License
 -------
 
--	[MIT License](https://opensource.org/licenses/mit-license.php)
+- [MIT License](LICENSE)

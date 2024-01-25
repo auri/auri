@@ -1,9 +1,9 @@
-# github.com/BurntSushi/toml v1.0.0
+# github.com/BurntSushi/toml v1.3.2
 ## explicit; go 1.16
 github.com/BurntSushi/toml
 github.com/BurntSushi/toml/internal
-# github.com/Masterminds/semver/v3 v3.1.1
-## explicit; go 1.12
+# github.com/Masterminds/semver/v3 v3.2.1
+## explicit; go 1.18
 github.com/Masterminds/semver/v3
 # github.com/aymerick/douceur v0.2.0
 ## explicit
@@ -12,25 +12,25 @@ github.com/aymerick/douceur/parser
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/dustin/go-humanize v1.0.0
-## explicit
+# github.com/dustin/go-humanize v1.0.1
+## explicit; go 1.16
 github.com/dustin/go-humanize
-# github.com/fatih/color v1.13.0
-## explicit; go 1.13
+# github.com/fatih/color v1.16.0
+## explicit; go 1.17
 github.com/fatih/color
 # github.com/fatih/structs v1.1.0
 ## explicit
 github.com/fatih/structs
-# github.com/felixge/httpsnoop v1.0.1
+# github.com/felixge/httpsnoop v1.0.4
 ## explicit; go 1.13
 github.com/felixge/httpsnoop
-# github.com/fsnotify/fsnotify v1.5.1
-## explicit; go 1.13
+# github.com/fsnotify/fsnotify v1.7.0
+## explicit; go 1.17
 github.com/fsnotify/fsnotify
-# github.com/go-sql-driver/mysql v1.6.0
-## explicit; go 1.10
+# github.com/go-sql-driver/mysql v1.7.1
+## explicit; go 1.13
 github.com/go-sql-driver/mysql
-# github.com/gobuffalo/buffalo v0.18.4
+# github.com/gobuffalo/buffalo v1.1.0
 ## explicit; go 1.16
 github.com/gobuffalo/buffalo
 github.com/gobuffalo/buffalo/binding
@@ -45,35 +45,38 @@ github.com/gobuffalo/buffalo/render
 github.com/gobuffalo/buffalo/runtime
 github.com/gobuffalo/buffalo/servers
 github.com/gobuffalo/buffalo/worker
-# github.com/gobuffalo/buffalo-pop/v3 v3.0.3
+# github.com/gobuffalo/buffalo-pop/v3 v3.0.7
 ## explicit; go 1.16
 github.com/gobuffalo/buffalo-pop/v3/pop
 github.com/gobuffalo/buffalo-pop/v3/pop/popmw
-# github.com/gobuffalo/envy v1.10.1
-## explicit; go 1.13
+# github.com/gobuffalo/envy v1.10.2
+## explicit; go 1.16
 github.com/gobuffalo/envy
-# github.com/gobuffalo/events v1.4.2
-## explicit; go 1.13
+# github.com/gobuffalo/events v1.4.3
+## explicit; go 1.16
 github.com/gobuffalo/events
 github.com/gobuffalo/events/internal/mapi
 github.com/gobuffalo/events/internal/safe
-# github.com/gobuffalo/fizz v1.14.0
+# github.com/gobuffalo/fizz v1.14.4
 ## explicit; go 1.16
 github.com/gobuffalo/fizz
 github.com/gobuffalo/fizz/translators
-# github.com/gobuffalo/flect v0.2.5
-## explicit; go 1.13
+# github.com/gobuffalo/flect v1.0.2
+## explicit; go 1.16
 github.com/gobuffalo/flect
 github.com/gobuffalo/flect/name
-# github.com/gobuffalo/github_flavored_markdown v1.1.1
-## explicit; go 1.16
+# github.com/gobuffalo/github_flavored_markdown v1.1.4
+## explicit; go 1.17
 github.com/gobuffalo/github_flavored_markdown
 github.com/gobuffalo/github_flavored_markdown/internal/russross/blackfriday
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_diff
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/highlight_go
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/octicon
 github.com/gobuffalo/github_flavored_markdown/internal/shurcooL/sanitized_anchor_name
-# github.com/gobuffalo/helpers v0.6.4
+# github.com/gobuffalo/grift v1.5.2
+## explicit; go 1.16
+github.com/gobuffalo/grift/grift
+# github.com/gobuffalo/helpers v0.6.7
 ## explicit; go 1.16
 github.com/gobuffalo/helpers
 github.com/gobuffalo/helpers/content
@@ -90,39 +93,39 @@ github.com/gobuffalo/helpers/meta
 github.com/gobuffalo/helpers/paths
 github.com/gobuffalo/helpers/tags
 github.com/gobuffalo/helpers/text
-# github.com/gobuffalo/httptest v1.5.1
-## explicit; go 1.13
+# github.com/gobuffalo/httptest v1.5.2
+## explicit; go 1.16
 github.com/gobuffalo/httptest
 github.com/gobuffalo/httptest/internal/takeon/github.com/ajg/form
 github.com/gobuffalo/httptest/internal/takeon/github.com/markbates/hmax
-# github.com/gobuffalo/logger v1.0.6
-## explicit; go 1.13
+# github.com/gobuffalo/logger v1.0.7
+## explicit; go 1.16
 github.com/gobuffalo/logger
-# github.com/gobuffalo/meta v0.3.1
-## explicit; go 1.13
+# github.com/gobuffalo/meta v0.3.3
+## explicit; go 1.16
 github.com/gobuffalo/meta
-# github.com/gobuffalo/mw-csrf v1.0.0
-## explicit; go 1.13
+# github.com/gobuffalo/mw-csrf v1.0.2
+## explicit; go 1.16
 github.com/gobuffalo/mw-csrf
-# github.com/gobuffalo/mw-paramlogger v1.0.0
-## explicit; go 1.13
+# github.com/gobuffalo/mw-paramlogger v1.0.2
+## explicit; go 1.16
 github.com/gobuffalo/mw-paramlogger
-# github.com/gobuffalo/nulls v0.4.1
-## explicit; go 1.13
+# github.com/gobuffalo/nulls v0.4.2
+## explicit; go 1.16
 github.com/gobuffalo/nulls
-# github.com/gobuffalo/packd v1.0.1
+# github.com/gobuffalo/packd v1.0.2
 ## explicit; go 1.13
 github.com/gobuffalo/packd
 github.com/gobuffalo/packd/internal/takeon/github.com/markbates/errx
-# github.com/gobuffalo/packr/v2 v2.8.1
-## explicit; go 1.13
+# github.com/gobuffalo/packr/v2 v2.8.3
+## explicit; go 1.16
 github.com/gobuffalo/packr/v2
 github.com/gobuffalo/packr/v2/file
 github.com/gobuffalo/packr/v2/file/resolver
 github.com/gobuffalo/packr/v2/file/resolver/encoding/hex
 github.com/gobuffalo/packr/v2/jam/parser
 github.com/gobuffalo/packr/v2/plog
-# github.com/gobuffalo/plush/v4 v4.1.10
+# github.com/gobuffalo/plush/v4 v4.1.19
 ## explicit; go 1.16
 github.com/gobuffalo/plush/v4
 github.com/gobuffalo/plush/v4/ast
@@ -137,7 +140,7 @@ github.com/gobuffalo/pop/v5/columns
 github.com/gobuffalo/pop/v5/internal/defaults
 github.com/gobuffalo/pop/v5/internal/randx
 github.com/gobuffalo/pop/v5/logging
-# github.com/gobuffalo/pop/v6 v6.0.2
+# github.com/gobuffalo/pop/v6 v6.1.1
 ## explicit; go 1.16
 github.com/gobuffalo/pop/v6
 github.com/gobuffalo/pop/v6/associations
@@ -145,6 +148,11 @@ github.com/gobuffalo/pop/v6/columns
 github.com/gobuffalo/pop/v6/internal/defaults
 github.com/gobuffalo/pop/v6/internal/randx
 github.com/gobuffalo/pop/v6/logging
+# github.com/gobuffalo/refresh v1.13.3
+## explicit; go 1.16
+github.com/gobuffalo/refresh/filenotify
+github.com/gobuffalo/refresh/refresh
+github.com/gobuffalo/refresh/refresh/web
 # github.com/gobuffalo/suite/v3 v3.0.2
 ## explicit; go 1.13
 github.com/gobuffalo/suite/v3
@@ -153,46 +161,46 @@ github.com/gobuffalo/suite/v3/fix
 ## explicit; go 1.16
 github.com/gobuffalo/suite/v4
 github.com/gobuffalo/suite/v4/fix
-# github.com/gobuffalo/tags/v3 v3.1.2
+# github.com/gobuffalo/tags/v3 v3.1.4
 ## explicit; go 1.16
 github.com/gobuffalo/tags/v3
 github.com/gobuffalo/tags/v3/form
 github.com/gobuffalo/tags/v3/form/bootstrap
-# github.com/gobuffalo/validate/v3 v3.3.1
-## explicit; go 1.13
+# github.com/gobuffalo/validate/v3 v3.3.3
+## explicit; go 1.16
 github.com/gobuffalo/validate/v3
 github.com/gobuffalo/validate/v3/validators
-# github.com/gobuffalo/x v0.0.0-20190224155809-6bb134105960
+# github.com/gobuffalo/x v0.1.0
 ## explicit
 github.com/gobuffalo/x/defaults
-# github.com/gofrs/uuid v4.2.0+incompatible
+# github.com/gofrs/uuid v4.4.0+incompatible
 ## explicit
 github.com/gofrs/uuid
 # github.com/gofrs/uuid/v3 v3.1.2
 ## explicit
 github.com/gofrs/uuid/v3
-# github.com/gorilla/css v1.0.0
-## explicit
+# github.com/gorilla/css v1.0.1
+## explicit; go 1.20
 github.com/gorilla/css/scanner
-# github.com/gorilla/handlers v1.5.1
-## explicit; go 1.14
+# github.com/gorilla/handlers v1.5.2
+## explicit; go 1.20
 github.com/gorilla/handlers
-# github.com/gorilla/mux v1.8.0
-## explicit; go 1.12
+# github.com/gorilla/mux v1.8.1
+## explicit; go 1.20
 github.com/gorilla/mux
-# github.com/gorilla/securecookie v1.1.1
-## explicit
+# github.com/gorilla/securecookie v1.1.2
+## explicit; go 1.20
 github.com/gorilla/securecookie
-# github.com/gorilla/sessions v1.2.1
-## explicit
+# github.com/gorilla/sessions v1.2.2
+## explicit; go 1.20
 github.com/gorilla/sessions
-# github.com/inconshreveable/mousetrap v1.0.0
-## explicit
+# github.com/inconshreveable/mousetrap v1.1.0
+## explicit; go 1.18
 github.com/inconshreveable/mousetrap
 # github.com/jackc/chunkreader/v2 v2.0.1
 ## explicit; go 1.12
 github.com/jackc/chunkreader/v2
-# github.com/jackc/pgconn v1.11.0
+# github.com/jackc/pgconn v1.14.1
 ## explicit; go 1.12
 github.com/jackc/pgconn
 github.com/jackc/pgconn/internal/ctxwatch
@@ -203,28 +211,28 @@ github.com/jackc/pgio
 # github.com/jackc/pgpassfile v1.0.0
 ## explicit; go 1.12
 github.com/jackc/pgpassfile
-# github.com/jackc/pgproto3/v2 v2.2.0
+# github.com/jackc/pgproto3/v2 v2.3.2
 ## explicit; go 1.12
 github.com/jackc/pgproto3/v2
-# github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b
+# github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9
 ## explicit; go 1.14
 github.com/jackc/pgservicefile
-# github.com/jackc/pgtype v1.10.0
+# github.com/jackc/pgtype v1.14.1
 ## explicit; go 1.13
 github.com/jackc/pgtype
-# github.com/jackc/pgx/v4 v4.15.0
+# github.com/jackc/pgx/v4 v4.18.1
 ## explicit; go 1.13
 github.com/jackc/pgx/v4
 github.com/jackc/pgx/v4/internal/sanitize
 github.com/jackc/pgx/v4/stdlib
-# github.com/jmoiron/sqlx v1.3.4
+# github.com/jmoiron/sqlx v1.3.5
 ## explicit; go 1.10
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
-# github.com/joho/godotenv v1.4.0
+# github.com/joho/godotenv v1.5.1
 ## explicit; go 1.12
 github.com/joho/godotenv
-# github.com/karrick/godirwalk v1.16.1
+# github.com/karrick/godirwalk v1.17.0
 ## explicit; go 1.13
 github.com/karrick/godirwalk
 # github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -244,26 +252,22 @@ github.com/markbates/grift/grift
 github.com/markbates/oncer
 # github.com/markbates/refresh v1.12.0
 ## explicit; go 1.17
-github.com/markbates/refresh/filenotify
-github.com/markbates/refresh/refresh
-github.com/markbates/refresh/refresh/web
 # github.com/markbates/safe v1.0.1
 ## explicit
 github.com/markbates/safe
 # github.com/markbates/sigtx v1.0.0
 ## explicit
-github.com/markbates/sigtx
-# github.com/mattn/go-colorable v0.1.12
-## explicit; go 1.13
+# github.com/mattn/go-colorable v0.1.13
+## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.14
-## explicit; go 1.12
+# github.com/mattn/go-isatty v0.0.20
+## explicit; go 1.15
 github.com/mattn/go-isatty
 # github.com/mattn/go-sqlite3 v2.0.3+incompatible
 ## explicit
 github.com/mattn/go-sqlite3
-# github.com/microcosm-cc/bluemonday v1.0.16
-## explicit; go 1.16
+# github.com/microcosm-cc/bluemonday v1.0.26
+## explicit; go 1.21
 github.com/microcosm-cc/bluemonday
 github.com/microcosm-cc/bluemonday/css
 # github.com/mitchellh/go-homedir v1.1.0
@@ -278,15 +282,13 @@ github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
-# github.com/rogpeppe/go-internal v1.8.0
-## explicit; go 1.11
+# github.com/rogpeppe/go-internal v1.12.0
+## explicit; go 1.20
 github.com/rogpeppe/go-internal/modfile
-github.com/rogpeppe/go-internal/module
-github.com/rogpeppe/go-internal/semver
-# github.com/sergi/go-diff v1.2.0
+# github.com/sergi/go-diff v1.3.1
 ## explicit; go 1.12
 github.com/sergi/go-diff/diffmatchpatch
-# github.com/sirupsen/logrus v1.8.1
+# github.com/sirupsen/logrus v1.9.3
 ## explicit; go 1.13
 github.com/sirupsen/logrus
 # github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
@@ -295,7 +297,7 @@ github.com/sourcegraph/annotate
 # github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e
 ## explicit
 github.com/sourcegraph/syntaxhighlight
-# github.com/spf13/cobra v1.4.0
+# github.com/spf13/cobra v1.8.0
 ## explicit; go 1.15
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
@@ -304,50 +306,54 @@ github.com/spf13/pflag
 # github.com/stanislas-m/mocksmtp v1.1.0
 ## explicit; go 1.12
 github.com/stanislas-m/mocksmtp
-# github.com/stretchr/testify v1.7.1
-## explicit; go 1.13
+# github.com/stretchr/testify v1.8.4
+## explicit; go 1.20
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
 github.com/stretchr/testify/suite
-# github.com/tehwalris/go-freeipa v0.0.0-00010101000000-000000000000 => ./support/go-freeipa
+# github.com/tehwalris/go-freeipa v0.0.0-20220405182840-f001416ae471 => ./support/go-freeipa
 ## explicit; go 1.16
 github.com/tehwalris/go-freeipa/freeipa
-# golang.org/x/crypto v0.7.0
-## explicit; go 1.17
+# golang.org/x/crypto v0.18.0
+## explicit; go 1.18
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/curve25519/internal/field
-golang.org/x/crypto/ed25519
 golang.org/x/crypto/internal/alias
 golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
-## explicit; go 1.18
+# golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
+## explicit; go 1.20
 golang.org/x/exp/constraints
 golang.org/x/exp/slices
-# golang.org/x/net v0.8.0
-## explicit; go 1.17
+# golang.org/x/mod v0.14.0
+## explicit; go 1.18
+golang.org/x/mod/internal/lazyregexp
+golang.org/x/mod/modfile
+golang.org/x/mod/module
+golang.org/x/mod/semver
+# golang.org/x/net v0.20.0
+## explicit; go 1.18
 golang.org/x/net/html
 golang.org/x/net/html/atom
-# golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-## explicit
+# golang.org/x/sync v0.6.0
+## explicit; go 1.18
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.6.0
-## explicit; go 1.17
+# golang.org/x/sys v0.16.0
+## explicit; go 1.18
 golang.org/x/sys/cpu
-golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/term v0.6.0
-## explicit; go 1.17
+# golang.org/x/term v0.16.0
+## explicit; go 1.18
 golang.org/x/term
-# golang.org/x/text v0.8.0
-## explicit; go 1.17
+# golang.org/x/text v0.14.0
+## explicit; go 1.18
 golang.org/x/text/cases
 golang.org/x/text/internal
 golang.org/x/text/internal/language
@@ -363,11 +369,10 @@ golang.org/x/text/unicode/norm
 golang.org/x/text/width
 # gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc
 ## explicit
-gopkg.in/alexcesaro/quotedprintable.v3
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+# gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
 # github.com/tehwalris/go-freeipa => ./support/go-freeipa

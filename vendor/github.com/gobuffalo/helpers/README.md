@@ -1,8 +1,7 @@
 # Helpers
 
-[![Actions Status](https://github.com/gobuffalo/helpers/workflows/Tests/badge.svg)](https://github.com/gobuffalo/helpers/actions)
-[![Build Status](https://dev.azure.com/markbates/buffalo/_apis/build/status/gobuffalo.helpers?branchName=master)](https://dev.azure.com/markbates/buffalo/_build/latest?definitionId=49&branchName=master)
-[![GoDoc](https://godoc.org/github.com/gobuffalo/helpers?status.svg)](https://godoc.org/github.com/gobuffalo/helpers)
+[![Standard Test](https://github.com/gobuffalo/helpers/actions/workflows/standard-go-test.yml/badge.svg)](https://github.com/gobuffalo/helpers/actions/workflows/standard-go-test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/gobuffalo/helpers.svg)](https://pkg.go.dev/github.com/gobuffalo/helpers)
 
 ---
 Note: This file is auto-generated. Do Not Edit

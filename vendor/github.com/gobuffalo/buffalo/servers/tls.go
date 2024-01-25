@@ -2,6 +2,7 @@ package servers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
@@ -17,6 +18,11 @@ func (s *TLS) SetAddr(addr string) {
 	if s.Server.Addr == "" {
 		s.Server.Addr = addr
 	}
+}
+
+// String returns a string representation of a Listener
+func (s *TLS) String() string {
+	return fmt.Sprintf("TLS server on %s", s.Server.Addr)
 }
 
 // Start the server

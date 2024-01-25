@@ -20,11 +20,17 @@ func (c *Connection) Reload(model interface{}) error {
 	})
 }
 
+// TODO: consider merging the following two methods.
+
 // Exec runs the given query.
 func (q *Query) Exec() error {
 	return q.Connection.timeFunc("Exec", func() error {
 		sql, args := q.ToSQL(nil)
-		log(logging.SQL, sql, args...)
+		if sql == "" {
+			return fmt.Errorf("empty query")
+		}
+
+		txlog(logging.SQL, q.Connection, sql, args...)
 		_, err := q.Connection.Store.Exec(sql, args...)
 		return err
 	})
@@ -36,7 +42,11 @@ func (q *Query) ExecWithCount() (int, error) {
 	count := int64(0)
 	return int(count), q.Connection.timeFunc("Exec", func() error {
 		sql, args := q.ToSQL(nil)
-		log(logging.SQL, sql, args...)
+		if sql == "" {
+			return fmt.Errorf("empty query")
+		}
+
+		txlog(logging.SQL, q.Connection, sql, args...)
 		result, err := q.Connection.Store.Exec(sql, args...)
 		if err != nil {
 			return err
@@ -245,7 +255,7 @@ func (c *Connection) Create(model interface{}, excludeColumns ...string) error {
 			m.setUpdatedAt(now)
 			m.setCreatedAt(now)
 
-			if err = c.Dialect.Create(c.Store, m, cols); err != nil {
+			if err = c.Dialect.Create(c, m, cols); err != nil {
 				return err
 			}
 
@@ -273,7 +283,8 @@ func (c *Connection) Create(model interface{}, excludeColumns ...string) error {
 							if IsZeroOfUnderlyingType(id) {
 								return c.Create(m.Value)
 							}
-							exists, errE := Q(c).Exists(i)
+
+							exists, errE := Q(c).Where(m.WhereID(), id).Exists(i)
 							if errE != nil || !exists {
 								return c.Create(m.Value)
 							}
@@ -286,7 +297,7 @@ func (c *Connection) Create(model interface{}, excludeColumns ...string) error {
 					}
 					stm := after[index].AfterProcess()
 					if c.TX != nil && !stm.Empty() {
-						_, err := c.TX.Exec(c.Dialect.TranslateSQL(stm.Statement), stm.Args...)
+						err := c.RawQuery(c.Dialect.TranslateSQL(stm.Statement), stm.Args...).Exec()
 						if err != nil {
 							return err
 						}
@@ -297,14 +308,7 @@ func (c *Connection) Create(model interface{}, excludeColumns ...string) error {
 				for index := range stms {
 					statements := stms[index].Statements()
 					for _, stm := range statements {
-						if c.TX != nil {
-							_, err := c.TX.Exec(c.Dialect.TranslateSQL(stm.Statement), stm.Args...)
-							if err != nil {
-								return err
-							}
-							continue
-						}
-						_, err = c.Store.Exec(c.Dialect.TranslateSQL(stm.Statement), stm.Args...)
+						err := c.RawQuery(c.Dialect.TranslateSQL(stm.Statement), stm.Args...).Exec()
 						if err != nil {
 							return err
 						}
@@ -368,7 +372,7 @@ func (c *Connection) Update(model interface{}, excludeColumns ...string) error {
 			now := nowFunc().Truncate(time.Microsecond)
 			m.setUpdatedAt(now)
 
-			if err = c.Dialect.Update(c.Store, m, cols); err != nil {
+			if err = c.Dialect.Update(c, m, cols); err != nil {
 				return err
 			}
 			if err = m.afterUpdate(c); err != nil {
@@ -378,6 +382,35 @@ func (c *Connection) Update(model interface{}, excludeColumns ...string) error {
 			return m.afterSave(c)
 		})
 	})
+}
+
+// UpdateQuery updates all rows matched by the query. The new values are read
+// from the first argument, which must be a struct. The column names to be
+// updated must be listed explicitly in subsequent arguments. The ID and
+// CreatedAt columns are never updated. The UpdatedAt column is updated
+// automatically.
+//
+// UpdateQuery does not execute (before|after)(Create|Update|Save) callbacks.
+//
+// Calling UpdateQuery with no columnNames will result in only the UpdatedAt
+// column being updated.
+func (q *Query) UpdateQuery(model interface{}, columnNames ...string) (int64, error) {
+	sm := NewModel(model, q.Connection.Context())
+	modelKind := reflect.TypeOf(reflect.Indirect(reflect.ValueOf(model))).Kind()
+	if modelKind != reflect.Struct {
+		return 0, fmt.Errorf("model must be a struct; got %s", modelKind)
+	}
+
+	cols := columns.NewColumnsWithAlias(sm.TableName(), sm.As, sm.IDField())
+	cols.Add(columnNames...)
+	if _, err := sm.fieldByName("UpdatedAt"); err == nil {
+		cols.Add("updated_at")
+	}
+	cols.Remove(sm.IDField(), "created_at")
+
+	now := nowFunc().Truncate(time.Microsecond)
+	sm.setUpdatedAt(now)
+	return q.Connection.Dialect.UpdateQuery(q.Connection, sm, cols, *q)
 }
 
 // UpdateColumns writes changes from an entry to the database, including only the given columns
@@ -413,7 +446,7 @@ func (c *Connection) UpdateColumns(model interface{}, columnNames ...string) err
 			now := nowFunc().Truncate(time.Microsecond)
 			m.setUpdatedAt(now)
 
-			if err = c.Dialect.Update(c.Store, m, cols); err != nil {
+			if err = c.Dialect.Update(c, m, cols); err != nil {
 				return err
 			}
 			if err = m.afterUpdate(c); err != nil {
@@ -437,7 +470,7 @@ func (c *Connection) Destroy(model interface{}) error {
 			if err = m.beforeDestroy(c); err != nil {
 				return err
 			}
-			if err = c.Dialect.Destroy(c.Store, m); err != nil {
+			if err = c.Dialect.Destroy(c, m); err != nil {
 				return err
 			}
 
@@ -451,7 +484,7 @@ func (q *Query) Delete(model interface{}) error {
 
 	return q.Connection.timeFunc("Delete", func() error {
 		m := NewModel(model, q.Connection.Context())
-		err := q.Connection.Dialect.Delete(q.Connection.Store, m, *q)
+		err := q.Connection.Dialect.Delete(q.Connection, m, *q)
 		if err != nil {
 			return err
 		}

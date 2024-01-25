@@ -41,6 +41,7 @@ func (c *compiler) compile() (string, error) {
 	for _, stmt := range c.program.Statements {
 		var res interface{}
 		var err error
+
 		switch node := stmt.(type) {
 		case *ast.ReturnStatement:
 			res, err = c.evalReturnStatement(node)
@@ -54,6 +55,7 @@ func (c *compiler) compile() (string, error) {
 		case *ast.LetStatement:
 			res, err = c.evalLetStatement(node)
 		}
+
 		if err != nil {
 			s := stmt
 			if c.curStmt != nil {
@@ -64,6 +66,7 @@ func (c *compiler) compile() (string, error) {
 
 		c.write(bb, res)
 	}
+
 	return bb.String(), nil
 }
 
@@ -153,12 +156,14 @@ func (c *compiler) evalAssignExpression(node *ast.AssignExpression) (interface{}
 	if err != nil {
 		return nil, err
 	}
+
 	n := node.Name.Value
 	if !c.ctx.Has(n) {
 		return nil, &ErrUnknownIdentifier{
 			ID: n,
 		}
 	}
+
 	c.ctx.Set(n, v)
 	return nil, nil
 }
@@ -166,6 +171,7 @@ func (c *compiler) evalAssignExpression(node *ast.AssignExpression) (interface{}
 func (c *compiler) evalUserFunction(node *userFunction, args []ast.Expression) (interface{}, error) {
 	octx := c.ctx
 	defer func() { c.ctx = octx }()
+
 	c.ctx = c.ctx.New()
 	for i, p := range node.Parameters {
 		a := args[i]
@@ -173,9 +179,10 @@ func (c *compiler) evalUserFunction(node *userFunction, args []ast.Expression) (
 		if err != nil {
 			return nil, err
 		}
-		c.ctx.Set(p.Value, v)
 
+		c.ctx.Set(p.Value, v)
 	}
+
 	return c.evalBlockStatement(node.Block)
 }
 
@@ -192,10 +199,12 @@ func (c *compiler) evalPrefixExpression(node *ast.PrefixExpression) (interface{}
 			return nil, err
 		}
 	}
+
 	switch node.Operator {
 	case "!":
 		return !c.isTruthy(res), nil
 	}
+
 	return nil, fmt.Errorf("unknown operator %s", node.Operator)
 }
 
@@ -232,13 +241,12 @@ func (c *compiler) evalElseAndElseIfExpressions(node *ast.IfExpression) (interfa
 	if node.ElseBlock != nil {
 		return c.evalBlockStatement(node.ElseBlock)
 	}
+
 	return r, nil
 }
 
 func (c *compiler) isTruthy(i interface{}) bool {
-
 	if i == nil {
-
 		return false
 	}
 
@@ -249,21 +257,16 @@ func (c *compiler) isTruthy(i interface{}) bool {
 		return t != ""
 	case template.HTML:
 		return t != ""
-
 	default:
-
 		if reflect.ValueOf(i).Kind() == reflect.Ptr && reflect.ValueOf(i).IsNil() {
-
 			return false
 		}
 
 		return true
-
 	}
 }
 
 func (c *compiler) evalIndexExpression(node *ast.IndexExpression) (interface{}, error) {
-
 	index, err := c.evalExpression(node.Index)
 	if err != nil {
 		return nil, err
@@ -277,10 +280,8 @@ func (c *compiler) evalIndexExpression(node *ast.IndexExpression) (interface{}, 
 	var value interface{}
 
 	if node.Value != nil {
-
 		value, err = c.evalExpression(node.Value)
 		if err != nil {
-
 			return nil, err
 		}
 
@@ -291,87 +292,68 @@ func (c *compiler) evalIndexExpression(node *ast.IndexExpression) (interface{}, 
 }
 
 func (c *compiler) evalUpdateIndex(left, index, value interface{}) error {
-
 	var err error
 	rv := reflect.ValueOf(left)
 	switch rv.Kind() {
 	case reflect.Map:
-
 		rv.SetMapIndex(reflect.ValueOf(index), reflect.ValueOf(value))
-
 	case reflect.Array, reflect.Slice:
 		if i, ok := index.(int); ok {
-
 			if rv.Len()-1 < i {
-
 				err = fmt.Errorf("array index out of bounds, got index %d, while array size is %v", i, rv.Len())
-
 			} else {
-
 				rv.Index(i).Set(reflect.ValueOf(value))
-
 			}
-
 		} else {
-
 			err = fmt.Errorf("can't access Slice/Array with a non int Index (%v)", index)
 		}
-
 	default:
 		err = fmt.Errorf("could not index %T with %T", left, index)
-
 	}
 
 	return err
 }
 
 func (c *compiler) evalAccessIndex(left, index interface{}, node *ast.IndexExpression) (interface{}, error) {
-
 	var returnValue interface{}
 	var err error
 	rv := reflect.ValueOf(left)
 	switch rv.Kind() {
 	case reflect.Map:
-		val := rv.MapIndex(reflect.ValueOf(index))
+		mapKeyType := reflect.TypeOf(left).Key().Kind()
+		keyType := reflect.TypeOf(index).Kind()
+		if mapKeyType != reflect.Interface &&
+			keyType != mapKeyType {
+			err = fmt.Errorf("cannot use %v (%s constant) as %s value in map index", index, keyType.String(), mapKeyType.String())
+			return nil, err
+		}
 
+		val := rv.MapIndex(reflect.ValueOf(index))
 		if !val.IsValid() {
 			return nil, nil
 		}
 
 		if node.Callee != nil {
-
 			returnValue, err = c.evalIndexCallee(val, node)
-
 		} else {
-
 			returnValue = val.Interface()
 		}
-
 	case reflect.Array, reflect.Slice:
 		if i, ok := index.(int); ok {
-
-			if node.Callee != nil {
-
-				returnValue, err = c.evalIndexCallee(rv.Index(i), node)
-
+			if i < 0 || i >= rv.Len() {
+				err = fmt.Errorf("array index out of bounds, got index %d, while array size is %d", index, rv.Len())
 			} else {
-				if i >= 0 && i < rv.Len() {
-					returnValue = rv.Index(i).Interface()
+				if node.Callee != nil {
+					returnValue, err = c.evalIndexCallee(rv.Index(i), node)
 				} else {
-
-					err = fmt.Errorf("array index out of bounds, got index %d, while array size is %d", index, rv.Len())
-
+					returnValue = rv.Index(i).Interface()
 				}
 			}
-
 		} else {
-
 			err = fmt.Errorf("can't access Slice/Array with a non int Index (%v)", index)
 		}
-
 	default:
 		err = fmt.Errorf("could not index %T with %T", left, index)
-
 	}
 
 	return returnValue, err
@@ -384,8 +366,10 @@ func (c *compiler) evalHashLiteral(node *ast.HashLiteral) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		m[ke.TokenLiteral()] = v
 	}
+
 	return m, nil
 }
 
@@ -394,6 +378,7 @@ func (c *compiler) evalLetStatement(node *ast.LetStatement) (interface{}, error)
 	if err != nil {
 		return nil, err
 	}
+
 	c.ctx.Set(node.Name.Value, v)
 	return nil, nil
 }
@@ -404,10 +389,12 @@ func (c *compiler) evalIdentifier(node *ast.Identifier) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		rv := reflect.ValueOf(c)
 		if !rv.IsValid() {
 			return nil, nil
 		}
+
 		if rv.Kind() == reflect.Ptr {
 			rv = rv.Elem()
 		}
@@ -417,50 +404,72 @@ func (c *compiler) evalIdentifier(node *ast.Identifier) (interface{}, error) {
 		}
 
 		f := rv.FieldByName(node.Value)
+		if f.Kind() == reflect.Ptr {
+			if f.IsNil() {
+				return nil, nil
+			}
+
+			f = f.Elem()
+		}
+
 		if !f.IsValid() {
 			m := rv.MethodByName(node.Value)
 			if !m.IsValid() {
 				return nil, fmt.Errorf("'%s' does not have a field or method named '%s' (%s)", node.Callee.String(), node.Value, node)
 			}
+
 			return m.Interface(), nil
 		}
 
 		if !f.CanInterface() {
-
 			return nil, fmt.Errorf("'%s'cannot return value obtained from unexported field or method '%s' (%s)", node.Callee.String(), node.Value, node)
 		}
+
 		return f.Interface(), nil
 	}
+
 	if c.ctx.Has(node.Value) {
 		return c.ctx.Value(node.Value), nil
 	}
+
 	if node.Value == "nil" {
 		return nil, nil
 	}
+
 	return nil, &ErrUnknownIdentifier{
 		ID: node.Value,
 	}
 }
 
 func (c *compiler) evalInfixExpression(node *ast.InfixExpression) (interface{}, error) {
-
 	lres, err := c.evalExpression(node.Left)
-	if err != nil {
+	if err != nil &&
+		node.Operator != "==" && node.Operator != "!=" &&
+		node.Operator != "||" && node.Operator != "&&" {
 		return nil, err
+	} // nil lres is acceptable only for '==', '!=', and logical operators
+
+	switch { // fast return
+	case node.Operator == "&&" && !c.isTruthy(lres):
+		return false, nil
+	case node.Operator == "||" && c.isTruthy(lres):
+		return true, nil
 	}
-	if node.Operator == "&&" {
-		if !c.isTruthy(lres) {
-			return false, nil
-		}
-	}
+
 	rres, err := c.evalExpression(node.Right)
-	if err != nil {
+	if err != nil &&
+		node.Operator != "==" && node.Operator != "!=" &&
+		node.Operator != "||" && node.Operator != "&&" {
 		return nil, err
-	}
+	} // nil rres is acceptable only for '==', '!=', and logical operators
 
 	switch node.Operator {
 	case "&&", "||":
-		return c.boolsOperator(lres, rres, node.Operator)
+		return c.isTruthy(rres), nil
+	} // fast return or this. '&&' and '||' end here
+
+	if nil == lres || nil == rres {
+		return c.nilsOperator(lres, rres, node.Operator)
 	}
 
 	switch t := lres.(type) {
@@ -479,18 +488,27 @@ func (c *compiler) evalInfixExpression(node *ast.InfixExpression) (interface{}, 
 			return c.floatsOperator(t, r, node.Operator)
 		}
 	case bool:
-
 		return c.boolsOperator(lres, rres, node.Operator)
-	case nil:
-		return nil, nil
 	}
+
 	return nil, fmt.Errorf("unable to operate (%s) on %T and %T ", node.Operator, lres, rres)
 }
 
-func (c *compiler) boolsOperator(l interface{}, r interface{}, op string) (interface{}, error) {
+func (c *compiler) nilsOperator(l interface{}, r interface{}, op string) (interface{}, error) {
+	switch op {
+	case "!=":
+		return l != r, nil
+	case "==":
+		return l == r, nil
+	default:
+		return nil, fmt.Errorf("unknown operator '%s' on '%T' and '%T' ", op, l, r)
+	}
+}
 
+func (c *compiler) boolsOperator(l interface{}, r interface{}, op string) (interface{}, error) {
 	lt := c.isTruthy(l)
 	rt := c.isTruthy(r)
+
 	switch op {
 	case "&&", "+":
 		return lt && rt, nil
@@ -501,9 +519,8 @@ func (c *compiler) boolsOperator(l interface{}, r interface{}, op string) (inter
 	case "==":
 		return lt == rt, nil
 	default:
-		return nil, fmt.Errorf("unkown operator (%s) on %T and %T ", op, lt, rt)
+		return nil, fmt.Errorf("unknown operator (%s) on %T and %T ", op, lt, rt)
 	}
-
 }
 
 func (c *compiler) intsOperator(l int, r int, op string) (interface{}, error) {
@@ -560,15 +577,10 @@ func (c *compiler) floatsOperator(l float64, r float64, op string) (interface{},
 
 func (c *compiler) stringsOperator(l string, r interface{}, op string) (interface{}, error) {
 	rr := fmt.Sprint(r)
+
 	switch op {
 	case "+":
 		return l + rr, nil
-	// case "-":
-	// 	return l - rr, nil
-	// case "/":
-	// 	return l / rr, nil
-	// case "*":
-	// 	return l * rr, nil
 	case "<":
 		return l < rr, nil
 	case ">":
@@ -593,22 +605,26 @@ func (c *compiler) stringsOperator(l string, r interface{}, op string) (interfac
 
 func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, error) {
 	var rv reflect.Value
+
 	if node.Callee != nil {
 		c, err := c.evalExpression(node.Callee)
 		if err != nil {
 			return nil, err
 		}
+
 		rc := reflect.ValueOf(c)
 		mname := node.Function.String()
 		if i, ok := node.Function.(*ast.Identifier); ok {
 			mname = i.Value
 		}
+
 		rv = rc.MethodByName(mname)
 		if !rv.IsValid() && rc.Type().Kind() != reflect.Ptr {
 			ptr := reflect.New(reflect.TypeOf(c))
 			ptr.Elem().Set(rc)
 			rv = ptr.MethodByName(mname)
 		}
+
 		if !rv.IsValid() {
 			if rv.Kind() == reflect.Slice {
 				rv = rc.FieldByName(mname)
@@ -616,6 +632,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 					return rv.Interface(), nil
 				}
 			}
+
 			return rc.Interface(), nil
 		}
 	} else {
@@ -623,15 +640,18 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 		if err != nil {
 			return nil, err
 		}
+
 		if ff, ok := f.(*userFunction); ok {
 			return c.evalUserFunction(ff, node.Arguments)
 		}
+
 		rv = reflect.ValueOf(f)
 	}
 
 	if rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
 	}
+
 	if !rv.IsValid() {
 		return nil, fmt.Errorf("%+v (%T) is an invalid function", node.String(), rv)
 	}
@@ -640,6 +660,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 	if rt.Kind() != reflect.Func {
 		return nil, fmt.Errorf("%+v (%T) is an invalid function", node.String(), rt)
 	}
+
 	rtNumIn := rt.NumIn()
 	isVariadic := rt.IsVariadic()
 	args := []reflect.Value{}
@@ -682,10 +703,12 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 				args = append(args, reflect.ValueOf(hargs))
 				return
 			}
+
 			if arg.ConvertibleTo(reflect.TypeOf(map[string]interface{}{})) {
 				args = append(args, reflect.ValueOf(map[string]interface{}{}))
 				return
 			}
+
 			rv := reflect.Indirect(reflect.New(arg))
 			args = append(args, rv)
 		}
@@ -711,10 +734,10 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 		if len(args) > rtNumIn {
 			return nil, fmt.Errorf("%s too many arguments (%d for %d) - %+v", node.String(), len(args), rtNumIn, args)
 		}
+
 		if len(args) < rtNumIn {
 			return nil, fmt.Errorf("%s too few arguments (%d for %d) - %+v", node.String(), len(args), rtNumIn, args)
 		}
-
 	} else {
 		// Variadic func
 		nodeArgs := node.Arguments
@@ -722,6 +745,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 		if nodeArgsLen < rtNumIn-1 {
 			return nil, fmt.Errorf("%s too few arguments (%d for %d) - %+v", node.String(), len(args), rtNumIn, args)
 		}
+
 		var pos int
 
 		// Handle normal args
@@ -778,6 +802,7 @@ func (c *compiler) evalCallExpression(node *ast.CallExpression) (interface{}, er
 		}
 		return res[0].Interface(), nil
 	}
+
 	return nil, nil
 }
 
@@ -786,6 +811,7 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 	defer func() {
 		c.ctx = octx
 	}()
+
 	c.ctx = octx.New()
 	// must copy all data from original (it includes application defined helpers)
 	for k, v := range octx.data {
@@ -796,10 +822,12 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 	if err != nil {
 		return nil, err
 	}
+
 	riter := reflect.ValueOf(iter)
 	if riter.Kind() == reflect.Ptr {
 		riter = riter.Elem()
 	}
+
 	ret := []interface{}{}
 	switch riter.Kind() {
 	case reflect.Map:
@@ -809,6 +837,7 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			v := riter.MapIndex(k)
 			c.ctx.Set(node.KeyName, k.Interface())
 			c.ctx.Set(node.ValueName, v.Interface())
+
 			res, err := c.evalBlockStatement(node.Block)
 			if err != nil {
 				return nil, err
@@ -824,7 +853,6 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			}
 
 			if res != nil {
-
 				ret = append(ret, res)
 			}
 
@@ -833,7 +861,6 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			}
 		}
 	case reflect.Slice, reflect.Array:
-
 		for i := 0; i < riter.Len(); i++ {
 			v := riter.Index(i)
 			c.ctx.Set(node.KeyName, i)
@@ -843,6 +870,7 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			if err != nil {
 				return nil, err
 			}
+
 			breakLoop := false
 			switch val := res.(type) {
 			case continueObject:
@@ -853,7 +881,6 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			}
 
 			if res != nil {
-
 				ret = append(ret, res)
 			}
 
@@ -861,9 +888,7 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 				break
 			}
 		}
-
 	default:
-
 		if iter == nil {
 			return nil, nil
 		}
@@ -873,10 +898,12 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 			for ii != nil {
 				c.ctx.Set(node.KeyName, i)
 				c.ctx.Set(node.ValueName, ii)
+
 				res, err := c.evalBlockStatement(node.Block)
 				if err != nil {
 					return nil, err
 				}
+
 				breakLoop := false
 				switch val := res.(type) {
 				case continueObject:
@@ -887,13 +914,13 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 				}
 
 				if res != nil {
-
 					ret = append(ret, res)
 				}
 
 				if breakLoop {
 					break
 				}
+
 				ii = it.Next()
 				i++
 			}
@@ -907,9 +934,7 @@ func (c *compiler) evalForExpression(node *ast.ForExpression) (interface{}, erro
 func (c *compiler) evalBlockStatement(node *ast.BlockStatement) (interface{}, error) {
 	res := []interface{}{}
 	for _, s := range node.Statements {
-
 		i, err := c.evalStatement(s)
-
 		if err != nil {
 			return nil, err
 		}
@@ -920,7 +945,6 @@ func (c *compiler) evalBlockStatement(node *ast.BlockStatement) (interface{}, er
 				res = append(res, i)
 			}
 		} else {
-
 			var resValue interface{}
 			switch obj := val.(type) {
 			case continueObject:
@@ -944,6 +968,7 @@ func (c *compiler) evalBlockStatement(node *ast.BlockStatement) (interface{}, er
 
 func (c *compiler) evalStatement(node ast.Statement) (interface{}, error) {
 	c.curStmt = node
+
 	switch t := node.(type) {
 	case *ast.ExpressionStatement:
 		s, err := c.evalExpression(t.Expression)
@@ -951,12 +976,14 @@ func (c *compiler) evalStatement(node ast.Statement) (interface{}, error) {
 		case exitBlockStatment, ast.Printable, template.HTML:
 			return s, err
 		}
+
 		return nil, err
 	case *ast.ReturnStatement:
 		return c.evalReturnStatement(t)
 	case *ast.LetStatement:
 		return c.evalLetStatement(t)
 	}
+
 	return nil, fmt.Errorf("could not eval statement %T", node)
 }
 
@@ -965,6 +992,7 @@ func (c *compiler) evalReturnStatement(node *ast.ReturnStatement) (interface{}, 
 	if err != nil {
 		return nil, err
 	}
+
 	if node.Type == token.RETURN {
 		v := returnObject{}
 		v.Value = append(v.Value, res)
@@ -976,18 +1004,20 @@ func (c *compiler) evalReturnStatement(node *ast.ReturnStatement) (interface{}, 
 
 func (c *compiler) evalArrayLiteral(node *ast.ArrayLiteral) (interface{}, error) {
 	res := []interface{}{}
+
 	for _, e := range node.Elements {
 		i, err := c.evalExpression(e)
 		if err != nil {
 			return nil, err
 		}
+
 		res = append(res, i)
 	}
+
 	return res, nil
 }
 
 func (c *compiler) evalIndexCallee(rv reflect.Value, node *ast.IndexExpression) (interface{}, error) {
-
 	octx := c.ctx.(*Context)
 	defer func() {
 		c.ctx = octx
@@ -1007,27 +1037,24 @@ func (c *compiler) evalIndexCallee(rv reflect.Value, node *ast.IndexExpression) 
 	//If key does contain "." then indexed field that needs to be accessed will be set in Node.left and Node.Callee
 	key := node.Left.String()
 	if strings.Contains(key, ".") {
-
 		ggg := strings.Split(key, ".")
 		callee := node.Callee.String()
-		if !strings.Contains(callee, key) {
 
+		if !strings.Contains(callee, key) {
 			for {
 				if len(ggg) >= 2 {
-
 					ggg = ggg[1:]
 				} else {
 					key = ggg[0]
 					break
 				}
+
 				if strings.Contains(callee, strings.Join(ggg, ".")) {
 					key = strings.Join(ggg, ".")
 					break
 				}
-
 			}
 		}
-
 	}
 
 	c.ctx.Set(key, rv.Interface())
